@@ -87,7 +87,7 @@ server.get("/api/home", async (req, res) => {
     status: 200,
     success: true,
     data: null,
-    message: "Welcome to the home API! updated with CICD v2",
+    message: "Welcome to the home API! updated with CICD update tested",
   });
 });
 
