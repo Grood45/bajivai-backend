@@ -87,7 +87,7 @@ server.get("/api/home", async (req, res) => {
     status: 200,
     success: true,
     data: null,
-    message: "Welcome to the home API! updated with CICD",
+    message: "Welcome to the home API! updated with CICD v2",
   });
 });
 
@@ -141,9 +141,13 @@ io.on("connection", (socket) => {
     cricketScoreInterval = setInterval(async () => {
       try {
         const url = `https://nikhilm.xyz/bettingapi/score_v1.php?Action=score&match_id=${matchId}`;
-        const response = await axios.post("http://3.108.170.225:8080/putapi", {
-          url,
-        },{ timeout: 5000});
+        const response = await axios.post(
+          "http://3.108.170.225:8080/putapi",
+          {
+            url,
+          },
+          { timeout: 5000 }
+        );
 
         if (!response.data.res) {
           socket.emit("cricketScoreData", []); // Send an empty array to indicate no data
@@ -165,9 +169,13 @@ io.on("connection", (socket) => {
     generalScoreInterval = setInterval(async () => {
       try {
         const url = `http://172.105.54.97:8085/api/cricketscoreballyball?id=${matchId}`;
-        const response = await axios.post("http://3.108.170.225:8080/putapi", {
-          url,
-        },{ timeout: 5000});
+        const response = await axios.post(
+          "http://3.108.170.225:8080/putapi",
+          {
+            url,
+          },
+          { timeout: 5000 }
+        );
 
         if (!response.data.res) {
           socket.emit("scoreData", []); // Send an empty array to indicate no data
@@ -190,9 +198,13 @@ io.on("connection", (socket) => {
     generalTennisSoccerScoreInterval = setInterval(async () => {
       try {
         const url = `http://172.105.54.97:8085/api/getScoreData?eventid=${matchId}`;
-        const response = await axios.post("http://3.108.170.225:8080/putapi", {
-          url,
-        },{ timeout: 5000});
+        const response = await axios.post(
+          "http://3.108.170.225:8080/putapi",
+          {
+            url,
+          },
+          { timeout: 5000 }
+        );
 
         if (!response.data.res) {
           socket.emit("TennisSoccerScoreData", []); // Send an empty array to indicate no data
@@ -215,9 +227,13 @@ io.on("connection", (socket) => {
     oddsDataInterval = setInterval(async () => {
       try {
         const url1 = `http://172.105.54.97:8085/api/getOdds?eventId=${match_id}`;
-        const response1 = await axios.post("http://3.108.170.225:8080/putapi", {
-          url: url1,
-        },{ timeout: 5000});
+        const response1 = await axios.post(
+          "http://3.108.170.225:8080/putapi",
+          {
+            url: url1,
+          },
+          { timeout: 5000 }
+        );
 
         // console.log(response1?.data?.res?.data?.t2,"l1")
         if (!response1?.data?.res) {
@@ -249,9 +265,13 @@ io.on("connection", (socket) => {
     bookmakerDataInterval = setInterval(async () => {
       try {
         const url1 = `http://172.105.54.97:8085/api/getOdds?eventId=${match_id}`;
-        const response1 = await axios.post("http://3.108.170.225:8080/putapi", {
-          url: url1,
-        },{ timeout: 5000});
+        const response1 = await axios.post(
+          "http://3.108.170.225:8080/putapi",
+          {
+            url: url1,
+          },
+          { timeout: 5000 }
+        );
         // console.log(response1?.data?.res?.data?.t2,"l2")
         // console.log(response1.data.res)
         if (!response1?.data?.res) {
@@ -276,9 +296,13 @@ io.on("connection", (socket) => {
     fancyDataInterval = setInterval(async () => {
       try {
         const url1 = `http://172.105.54.97:8085/api/getOdds?eventId=${match_id}`;
-        const response1 = await axios.post("http://3.108.170.225:8080/putapi", {
-          url: url1,
-        },{ timeout: 5000});
+        const response1 = await axios.post(
+          "http://3.108.170.225:8080/putapi",
+          {
+            url: url1,
+          },
+          { timeout: 5000 }
+        );
         // console.log(response1?.data?.res?.data?.t3, "ll3")
         if (!response1?.data?.res) {
           socket.emit("fancyData", []); // Send an empty array to indicate no data
@@ -295,31 +319,33 @@ io.on("connection", (socket) => {
     }, 3000);
   });
 
-
-  socket.on("startDataFetching", async(category) => {
+  socket.on("startDataFetching", async (category) => {
     console.log(`Client wants to fetch data for EventID: ${category}`);
     // Set up an interval to fetch and emit data every second
     // fancyDataInterval = setInterval(async () => {
-      try {
-        const url = `http://172.105.54.97:8085/api/${category}`;
-        const response = await axios.post("http://3.108.170.225:8080/putapi", {
+    try {
+      const url = `http://172.105.54.97:8085/api/${category}`;
+      const response = await axios.post(
+        "http://3.108.170.225:8080/putapi",
+        {
           url,
-        },{ timeout: 5000});
-        // console.log(response1?.data?.res?.data?.t3, "ll3")
-        if (!response?.data?.res) {
-          socket.emit("Data", []); // Send an empty array to indicate no data
-          // clearInterval(fancyDataInterval);
-          return;
-        }
-        // console.log(response1.data.res)
-        // Emit the fetched data to the client
-        socket.emit("Data", response?.data?.res || []);
-      } catch (error) {
-        console.error("Error fancy data:", error);
+        },
+        { timeout: 5000 }
+      );
+      // console.log(response1?.data?.res?.data?.t3, "ll3")
+      if (!response?.data?.res) {
+        socket.emit("Data", []); // Send an empty array to indicate no data
+        // clearInterval(fancyDataInterval);
+        return;
       }
+      // console.log(response1.data.res)
+      // Emit the fetched data to the client
+      socket.emit("Data", response?.data?.res || []);
+    } catch (error) {
+      console.error("Error fancy data:", error);
+    }
     // }, 2000);
   });
-
 
   socket.on("startFetchingMatch", (category) => {
     console.log(`Client wants to fetch match for : ${category}`);
@@ -434,11 +460,6 @@ io.on("connection", (socket) => {
   });
 });
 
-
-
-
-
-
 // console.log(GetCurrentTime().split(" ")[0])
 
 // function paginateArray(array, page, limit) {
@@ -459,28 +480,27 @@ io.on("connection", (socket) => {
 // const page2 = paginateArray(data, 2, 3);
 // console.log(page2); // Output: [4, 5, 6]
 
-
 // Socket.io code
 // cricket
 // Define a function to be executed by the cron job
 const SaveLeagueCornJob = () => {
-    console.log('Cron job executed at:', new Date());
-    // Add your task to be executed every 30 seconds here
+  console.log("Cron job executed at:", new Date());
+  // Add your task to be executed every 30 seconds here
   // Start the server
   // saveLeague()
-  };
+};
 
 const SaveMatchCornJob = () => {
-    console.log('Cron job executed at:', new Date());
-    // Add your task to be executed every 30 seconds here
+  console.log("Cron job executed at:", new Date());
+  // Add your task to be executed every 30 seconds here
   // Start the server
 };
 // SaveMatch()
 
 // // Schedule the cron job to run every 2 hours.
-cron.schedule('0 */2 * * *', SaveLeagueCornJob);
+cron.schedule("0 */2 * * *", SaveLeagueCornJob);
 
-cron.schedule('30 */2.5 * * *', SaveMatchCornJob)
+cron.schedule("30 */2.5 * * *", SaveMatchCornJob);
 
 // {
 //   "res": {
@@ -543,7 +563,7 @@ cron.schedule('30 */2.5 * * *', SaveMatchCornJob)
 //         "eid": "4",
 //         "eventName": "West Indies T10 v Sri Lanka T10 / Oct 11 2023  9:15PM (IST)",
 //         "inPlay": "True",
-//         "tv": "True", 
+//         "tv": "True",
 //         "back1": 0,
 //         "lay1": 0,
 //         "back11": 0,
