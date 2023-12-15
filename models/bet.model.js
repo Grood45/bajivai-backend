@@ -40,8 +40,8 @@ const BetHistorySchema = new Schema({
     type: String,
     required: true,
   },
-  league_name:{
- type:String,
+  league_name: {
+    type: String,
   },
   match_name: {
     type: String, // Add the field for the match name
@@ -82,6 +82,20 @@ const BetHistorySchema = new Schema({
   updated_at: {
     type: String,
   },
+  winner: {
+    type: String,
+    default:""
+  },
+  result: {
+    type: String,
+    default:""
+  },
+  size: {
+    type: Number,
+  },
+  parent_admin_id: { type: String, default: "", require: true },
+  parent_admin_role_type: { type: String, default: "", require: true },
+  parent_admin_username: { type: String, default: "", require: true },
 });
 
 // Create the BetHistory model

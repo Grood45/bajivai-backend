@@ -87,6 +87,10 @@ const matchSchema = new Schema({
     type: String,
     default: "",
   },
+  winner: {
+    type: String,
+    default: "",
+  },
 });
 
 const MatchModel = mongoose.model("match", matchSchema);

@@ -11,6 +11,8 @@ const {
   GetWithdrawById,
   UpdateDepositById,
   UpdateWithdrawById,
+  GetTransactionsPl,
+
 } = require("../controllers/transaction.controller");
 
 const TransactionRouter = express.Router();
@@ -26,5 +28,6 @@ TransactionRouter.get("/get-single-deposit/:_id", GetDepositById);
 TransactionRouter.get("/get-single-withdraw/:_id", GetWithdrawById);
 TransactionRouter.patch("/update-single-deposit/:_id", UpdateDepositById);
 TransactionRouter.patch("/update-single-withdraw/:_id", UpdateWithdrawById);
+TransactionRouter.get("/get-transaction-pl/:user_id", GetTransactionsPl);
 
 module.exports = { TransactionRouter };

@@ -87,7 +87,7 @@ server.get("/api/home", async (req, res) => {
     status: 200,
     success: true,
     data: null,
-    message: "Welcome to the home API! updated with CICD update tested",
+    message: "Welcome to the home API! updated and CI tested",
   });
 });
 
@@ -487,15 +487,18 @@ const SaveLeagueCornJob = () => {
   console.log("Cron job executed at:", new Date());
   // Add your task to be executed every 30 seconds here
   // Start the server
-  // saveLeague()
+saveLeague()
+
 };
 
 const SaveMatchCornJob = () => {
   console.log("Cron job executed at:", new Date());
   // Add your task to be executed every 30 seconds here
   // Start the server
+SaveMatch()
+
 };
-// SaveMatch()
+
 
 // // Schedule the cron job to run every 2 hours.
 cron.schedule("0 */2 * * *", SaveLeagueCornJob);

@@ -541,7 +541,10 @@ async function UpdateExposureLimit(req, res) {
   }
 }
 
+
 async function PlaceBetAndUpdateExposure(req, res) {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
     const {
       user_id,
@@ -559,7 +562,9 @@ async function PlaceBetAndUpdateExposure(req, res) {
       bet_category,
       question = "",
       league_name,
+      size=0,
       exposure_limit,
+     
     } = req.body;
 
     console.log(exposure_limit);
@@ -576,28 +581,34 @@ async function PlaceBetAndUpdateExposure(req, res) {
       bet_type,
       stake,
       rate,
+      size,
       runner_name,
       bet_category,
       question: question,
       league_name,
+     
     });
-
     const savedBet = await newBet.save();
-
     if (!savedBet) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(500).json({
         status: 500,
         success: false,
-        message: "Something went wrong while save bet.",
+        message: "Something went wrong while saving the bet.",
       });
     }
+
+    // Update user's exposure limit
     const updatedUser = await User.findOneAndUpdate(
       { user_id },
       { exposure_limit },
-      { new: true }
+      { new: true, session }
     ).exec();
 
     if (!updatedUser) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(404).json({
         status: 404,
         success: false,
@@ -605,6 +616,11 @@ async function PlaceBetAndUpdateExposure(req, res) {
       });
     }
 
+    // Commit the transaction if everything succeeds
+    await session.commitTransaction();
+    session.endSession();
+
+    // Send success response
     res.status(200).json({
       status: 201,
       success: true,
@@ -613,10 +629,12 @@ async function PlaceBetAndUpdateExposure(req, res) {
     });
   } catch (error) {
     console.error("Error placing bet and updating exposure limit:", error);
+    await session.abortTransaction();
+    session.endSession();
     res.status(500).json({
       status: 500,
       success: false,
-      message: error.message || "Internal server error",
+      message: error.message || "Something went wrong",
     });
   }
 }

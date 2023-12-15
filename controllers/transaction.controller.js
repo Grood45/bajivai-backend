@@ -876,6 +876,84 @@ async function UpdateDepositById(req, res) {
     });
   }
 }
+async function GetTransactionsPl(req, res) {
+  const user_id = req.params.user_id; // Assuming userId is a route parameter
+  const page = req.query.page || 1; // Current page number from query parameter, default to 1 if not provided
+  const pageSize = req.query.pageSize || 20; // Number of items per page from query parameter, default to 10 if not provided
+  const type = req.query.type || 20; // Number of items per page from query parameter, default to 10 if not provided
+  const username = req.query.username; // Assuming userId is a route parameter
+  try {
+    // Find deposits and withdrawals for the given user_id
+    const deposits = await DepositModel.aggregate([
+      { $match: { user_id, username, status: "approved" } },
+      {
+        $group: {
+          _id: null,
+          totalDeposits: { $sum: "$deposit_amount" },
+        },
+      },
+    ]);
+
+    const withdrawals = await WithdrawModel.aggregate([
+      { $match: { user_id, username } },
+      {
+        $group: {
+          _id: null,
+          totalWithdrawals: { $sum: "$withdraw_amount" },
+        },
+      },
+    ]);
+    console.log(username, user_id, type);
+    let rest_amount = 0;
+    if (type === "user") {
+      let user = await User.findOne({ username, user_id });
+      if (!user) {
+        return res.status(404).json({
+          status: 404,
+          success: true,
+          message: "User not found.",
+        });
+      }
+      rest_amount = Math.abs(user.amount - user.exposure_limit);
+    } else {
+      let admin = await Admin.findOne({ username, admin_id: user_id });
+      if (!admin) {
+        return res.status(404).json({
+          status: 404,
+          success: true,
+          message: "Admin not found.",
+        });
+      }
+      rest_amount = admin.amount;
+    }
+    // Calculate the total amount by subtracting withdrawals from deposits
+    const totalDeposits = deposits.length > 0 ? deposits[0].totalDeposits : 0;
+    const totalWithdrawals =
+      withdrawals.length > 0 ? withdrawals[0].totalWithdrawals : 0;
+    const totalAmount = totalWithdrawals - totalDeposits + rest_amount;
+
+    // Now, totalAmount variable holds the total amount for the user
+
+    // Send the response with transactions and pagination details
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Amount retrived successfully.",
+      totalDeposits,
+      totalWithdrawals,
+      totalAmount,
+    });
+  } catch (error) {
+    // Handle errors, log them, or return an appropriate response
+    console.error("Error fetching transactions:", error);
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: "Error fetching transactions.",
+      error: error.message,
+    });
+  }
+}
 
 module.exports = {
   GetAllWithdrawTransaction,
@@ -889,4 +967,6 @@ module.exports = {
   GetWithdrawById,
   UpdateWithdrawById,
   UpdateDepositById,
+  GetTransactionsPl,
+
 };
