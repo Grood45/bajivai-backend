@@ -87,7 +87,7 @@ server.get("/api/home", async (req, res) => {
     status: 200,
     success: true,
     data: null,
-    message: "Welcome to the home API! updated and CI tested-21",
+    message: "Welcome to the home API! updated and CI tested-231",
   });
 });
 
