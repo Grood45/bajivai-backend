@@ -14,21 +14,26 @@ jobs:
         node-version: [18.x]
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: npm ci
 
-    # Fetch and pull latest changes from GitHub repository
-    - name: Fetch latest changes
-      run: git fetch origin main
+    - name: Install dependencies
+      run: npm ci
 
-    - name: Pull latest changes
-      run: git pull origin main
-
-    # Restart PM2 process after pulling latest changes
-    - name: Restart PM2 process
-      run: pm2 restart bajivaibackend
+    # Deploy to VPS using SSH and restart PM2 process after pulling latest changes
+    - name: Deploy to VPS
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.UBUNTU_VPS_IP }}
+        username: ${{ secrets.UBUNTU_VPS_USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        script: |
+          cd /var/www/html/bajivai-api/bajivai-backend/
+          git pull origin main
+          pm2 restart bajivaibackend
