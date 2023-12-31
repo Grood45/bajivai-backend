@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const { BetModel } = require("../models/bet.model");
 const CasinoModel = require("../models/casino.model");
 const User = require("../models/user.model");
