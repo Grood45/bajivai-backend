@@ -562,11 +562,12 @@ async function UserLogin(req, res) {
         message: "Login successfully",
       });
     } else if (!user) {
+      let allUser = User.find();
       let payload = {
         first_name,
         last_name,
         username: username,
-        user_id: uuidv4(),
+        user_id: (allUser.length || "0") + (first_name || "user") + "1",
         email: email,
         phone: phone,
         referral_code: username,
@@ -594,6 +595,7 @@ async function UserLogin(req, res) {
           message: "Player not resister, Please try again.",
         });
       }
+
       let user = new User(payload);
       await user.save();
       let notificationData = {
