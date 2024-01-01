@@ -495,15 +495,16 @@ const SaveMatchCornJob = () => {
   console.log("Cron job executed at:", new Date());
   // Add your task to be executed every 30 seconds here
   // Start the server
-SaveMatch()
-
+  
+  SaveMatch()
 };
 
 
-// // Schedule the cron job to run every 2 hours.
-cron.schedule("0 */2 * * *", SaveLeagueCornJob);
+// Schedule a task at 11:00 PM every night
+cron.schedule("0 22 * * *", SaveLeagueCornJob);
 
-cron.schedule("30 */2.5 * * *", SaveMatchCornJob);
+// Schedule a task at 11:30 PM every night
+cron.schedule("30 22 * * *", SaveMatchCornJob);
 
 // {
 //   "res": {
