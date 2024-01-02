@@ -432,22 +432,23 @@ const GetDepositByUserId = async (req, res) => {
 const CreateDepositTransaction = async (req, res) => {
   try {
     // Create a new RulesRegulation document with data from the request body
+
+    const allDepositData = await DepositModel.find();
     let payload = {
       ...req.body,
       initiated_at: GetCurrentTime(),
-      transaction_id: uuidv4(),
+      transaction_id: "TRNX" + (allDepositData.length || 0) + 1,
     };
 
     const previousResult = await DepositModel.findOne({
       user_id: payload.user_id,
       status: "pending",
     });
-
     if (previousResult) {
       return res.status(500).json({
         status: 500,
         success: true,
-        message: "Previous withdraw request not completed.",
+        message: "Previous deposit request not completed.",
       });
     }
     const user = await User.findOne({
@@ -486,10 +487,11 @@ const CreateDepositTransaction = async (req, res) => {
 
 const CreateWithdrawTransaction = async (req, res) => {
   try {
+    const allWithdraw = await WithdrawModel.find();
     let payload = {
       ...req.body,
       initiated_at: GetCurrentTime(),
-      transaction_id: uuidv4(),
+      transaction_id: "TRNX" + (+allWithdraw.length || 0) + 1,
     };
     // console.log(payload);
     // Create a new RulesRegulation document with data from the request body
@@ -968,5 +970,4 @@ module.exports = {
   UpdateWithdrawById,
   UpdateDepositById,
   GetTransactionsPl,
-
 };
