@@ -186,6 +186,7 @@ const GetAllBetsForResult = async (req, res) => {
     const limit = parseInt(req.query.limit) || 20; // Default to 10 items per page if not specified
     const searchQuery = req.query.search || req.query.name; // Default to an empty string if not specified
     const betCategory = req.query.bet_category || null; // Default to null if not specified
+    const status=req.query.status
 
     const skip = (page - 1) * limit;
 
@@ -206,9 +207,11 @@ const GetAllBetsForResult = async (req, res) => {
       query.bet_category = betCategory;
     }
 
+    if(status){
+      query.status=status
+    }
     // Query the database with pagination, search, and filtering
     const bets = await BetModel.find(query).skip(skip).limit(limit);
-
     const totalBets = await BetModel.countDocuments(query);
     const totalOdds = await BetModel.countDocuments({
       bet_category: "odds",

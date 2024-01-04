@@ -62,7 +62,7 @@ const BetHistorySchema = new Schema({
   },
   status: {
     type: String,
-    enum: ["win", "lose", "refund", "pending"],
+    enum: ["win", "lose", "refund", "pending", "declaired"],
     default: "pending",
   },
   bet_category: {
