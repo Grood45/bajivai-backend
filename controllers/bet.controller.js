@@ -186,6 +186,7 @@ const GetAllBetsForResult = async (req, res) => {
     const limit = parseInt(req.query.limit) || 20; // Default to 10 items per page if not specified
     const searchQuery = req.query.search || req.query.name; // Default to an empty string if not specified
     const betCategory = req.query.bet_category || null; // Default to null if not specified
+    const status=req.query.status
 
     const skip = (page - 1) * limit;
 
@@ -206,9 +207,11 @@ const GetAllBetsForResult = async (req, res) => {
       query.bet_category = betCategory;
     }
 
+    if(status){
+      query.status=status
+    }
     // Query the database with pagination, search, and filtering
     const bets = await BetModel.find(query).skip(skip).limit(limit);
-
     const totalBets = await BetModel.countDocuments(query);
     const totalOdds = await BetModel.countDocuments({
       bet_category: "odds",
@@ -268,8 +271,6 @@ const GetAllBetByUserId = async (req, res) => {
       event_type,
       username,
     } = req.query;
-
-    console.log(category, "category");
 
     const { user_id } = req.params;
     const skip = (page - 1) * limit;
@@ -335,11 +336,11 @@ const GetAllBetByUserId = async (req, res) => {
     let casinoBetAmount = 0;
     let sportBetAmount = 0;
 
-    let totalBet = [...bet, ...bet2];
+    let totalBet = [...bet];
     let amountBet = [...allSportBet, ...allCasinoBet];
     // Iterate through all bets using a for loop
-    for (let i = 0; i < amountBet.length; i++) {
-      const bet = amountBet[i];
+    for (let i = 0; i < totalBet.length; i++) {
+      const bet = totalBet[i];
       totalBetAmount += bet.stake;
       if (bet.event_type == "casino") {
         casinoBetAmount += bet.stake;
@@ -357,7 +358,7 @@ const GetAllBetByUserId = async (req, res) => {
       });
       return ans;
     }
-    amountBet = sortByPlacedAt(amountBet);
+    totalBet = sortByPlacedAt(totalBet);
     const allSportBets = await BetModel.countDocuments({ user_id });
     const allCasinoBets = await CasinoModel.countDocuments({
       Username: username,
@@ -408,9 +409,9 @@ const GetAllBetByUserId = async (req, res) => {
     const endIndex = page * limit;
 
     // Implementing pagination
-    data = (amountBet || []).slice(startIndex, endIndex);
+    data = (totalBet || []).slice(startIndex, endIndex);
 
-    const totalPages = Math.ceil(amountBet.length / limit);
+    const totalPages = Math.ceil(totalBet.length / limit);
     const pagination = {
       totalbet: totalItems,
       totalPages,
@@ -445,6 +446,7 @@ const GetAllBetByUserId = async (req, res) => {
     });
   }
 };
+
 
 async function PlaceBet(req, res) {
   try {
