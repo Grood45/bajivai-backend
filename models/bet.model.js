@@ -84,15 +84,17 @@ const BetHistorySchema = new Schema({
   },
   winner: {
     type: String,
-    default:""
+    default: "",
   },
   result: {
     type: String,
-    default:""
+    default: "",
   },
   size: {
     type: Number,
   },
+  market_id: { type: String, default:"" },
+  question_id: { type: String, default:"" },
   parent_admin_id: { type: String, default: "", require: true },
   parent_admin_role_type: { type: String, default: "", require: true },
   parent_admin_username: { type: String, default: "", require: true },

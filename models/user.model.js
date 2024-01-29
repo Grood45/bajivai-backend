@@ -140,6 +140,7 @@ const userSchema = new Schema({
     type: Number,
     default: 0, // Default 0
   },
+  user_type:{type:String, default:"bajivai", enum:["ludocasino", "bajivai"]}
 });
 
 const User = mongoose.model("User", userSchema);

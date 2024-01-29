@@ -1,5 +1,18 @@
 const { ControlModel } = require("../models/admincontrol.model");
 const User = require("../models/user.model");
+const { VerifyJwt } = require("../utils/VerifyJwt");
+const { AdminModel } = require("../models/admin.model");
+const { EncryptPassword } = require("../utils/EncryptPassword");
+const { DecryptPassword } = require("../utils/DecryptPassword");
+const { sendEmail } = require("../utils/nodemailer");
+const Admin = require("../models/admin.model");
+const { GenrateJwtToken } = require("../utils/GenerateJwt");
+const { GetCurrentTime } = require("../utils/GetCurrentTime");
+const { default: axios } = require("axios");
+const WithdrawModel = require("../models/withdraw.model");
+const NotificationModel = require("../models/notification.model");
+const DepositModel = require("../models/deposit.model");
+const CasinoModel = require("../models/casino.model");
 require("dotenv").config();
 const { v4: uuidv4 } = require("uuid");
 const GetAllUsers = async (req, res) => {
@@ -248,17 +261,7 @@ const GetAdminControl = async (req, res) => {
   }
 };
 
-const { VerifyJwt } = require("../utils/VerifyJwt");
-const { AdminModel } = require("../models/admin.model");
-const { EncryptPassword } = require("../utils/EncryptPassword");
-const { DecryptPassword } = require("../utils/DecryptPassword");
-const { sendEmail } = require("../utils/nodemailer");
-const Admin = require("../models/admin.model");
-const { GenrateJwtToken } = require("../utils/GenerateJwt");
-const { GetCurrentTime } = require("../utils/GetCurrentTime");
-const { default: axios } = require("axios");
-const WithdrawModel = require("../models/withdraw.model");
-const NotificationModel = require("../models/notification.model");
+
 
 const AdminPasswordReset = async (req, res) => {
   const { admin_id } = req.params;
@@ -682,6 +685,85 @@ const GetTodayWithdrawAmount = async (req, res) => {
   }
 };
 
+
+
+const GetTotalDepositAndWager = async (req, res) => {
+  const { username, user_id } = req.body;
+
+  try {
+if(!username||!user_id){
+   return res.status(400).json({
+      status: 400,
+      success: false,
+      message: "Invalid req body.",
+    });}
+    let depositData = await DepositModel.find({ username, user_id, status:"approved" });
+    let casinoData = await CasinoModel.find({
+      Username: username,
+      UserId: user_id,
+    });
+
+    // console.log(depositData, casinoData)
+    // console.log(depositData, casinoData, username, user_id);
+    // if (depositData.length == 0 || casinoData.length == 0) {
+    //   return res.status(200).json({
+    //     status: 200,
+    //     success: false,
+    //     data: { totalDeposit: 0, totalWager: 0, wagerLeft: 0 },
+    //     message: "Data empty.",
+    //   });
+    // }
+    const totalWager = () => {
+      let totalWager = 0;
+      for (let h = 0; h < depositData.length; h++) {
+        let deposit = depositData[h];
+        let totalBonus=Math.round((deposit.deposit_amount/100)*deposit.bonus);
+       
+        totalWager += totalBonus;
+      }
+      return totalWager;
+    };
+    const totalDeposit = () => {
+      let totalDepositAmount = 0;
+      for (let h = 0; h < depositData.length; h++) {
+        let deposit = depositData[h];
+        totalDepositAmount += deposit.deposit_amount;
+      }
+      return totalDepositAmount;
+    };
+    const getTurnOver = () => {
+      let turnover = 0;
+      for (let a = 0; a <casinoData.length ; a++) {
+        let bet = casinoData[a];
+        turnover += +bet.WinLoss;
+      }
+      return turnover;
+    }
+    console.log(getTurnOver(), totalWager())
+    let wagerLeft = Math.abs(totalWager() - getTurnOver());
+    wagerLeft = wagerLeft > 0 ? wagerLeft : 0;
+    wagerLeft = wagerLeft>0?0:wagerLeft;
+
+    res.status(200).json({
+      status: 200,
+      success: false,
+      data: {
+        totalDeposit: totalDeposit(),
+        totalWager: totalWager(),
+        wagerLeft: wagerLeft,
+
+      },
+      message: "Data retrieved successfully.",
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   GetAllUsers,
   ToggleUserStatus,
@@ -698,4 +780,5 @@ module.exports = {
   GetAdmin,
   UserLogin,
   GetTodayWithdrawAmount,
+  GetTotalDepositAndWager
 };

@@ -6,9 +6,8 @@ const withdrawalGatewaySchema = new Schema({
     type: String,
     required: true,
   },
-  method_url:{
-    type:String
-    
+  method_url: {
+    type: String,
   },
   method_id: {
     type: String || Number,
@@ -21,7 +20,6 @@ const withdrawalGatewaySchema = new Schema({
   },
   initiated_at: {
     type: String,
-    
   },
   username: {
     type: String,
@@ -42,11 +40,11 @@ const withdrawalGatewaySchema = new Schema({
   status: {
     type: String,
     enum: ["approved", "reject", "pending"],
-    required:true,
+    required: true,
     default: "pending",
   },
   updated_at: {
-    type: String
+    type: String,
   },
   withdraw_slip: {
     type: String,
@@ -78,6 +76,10 @@ const withdrawalGatewaySchema = new Schema({
   type: {
     type: String,
     default: "withdraw",
+  },
+  total_withdraw_amount: {
+    type: Number,
+    default: 0,
   },
 });
 
