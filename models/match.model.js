@@ -91,6 +91,12 @@ const matchSchema = new Schema({
     type: String,
     default: "",
   },
+  market_id: {
+    type: String,
+    default: "",
+  },
+  market_name: { type: String, default: "" },
+  market_start_time: { type: String, default: ""},
 });
 
 const MatchModel = mongoose.model("match", matchSchema);

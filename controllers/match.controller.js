@@ -1,6 +1,7 @@
 const { BetModel } = require("../models/bet.model");
 const CasinoModel = require("../models/casino.model");
 const CasinoProvider = require("../models/casinoprovider.model");
+const { FancyQuestionModel } = require("../models/fancyquestion.model");
 const LeagueModel = require("../models/league.model");
 const MatchModel = require("../models/match.model");
 const { SportModel } = require("../models/sport.model");
@@ -403,6 +404,34 @@ const GetAdminSportsCount = async (req, res) => {
   }
 };
 
+const GetAllQuestion = async (req, res) => {
+  try {
+    const { search } = req.query;
+    let query = {};
+    if (search) {
+      query.$or = [
+        { match_name: { $regex: search, $options: "i" } },
+        { league_name: { $regex: search, $options: "i" } },
+        { question: { $regex: search, $options: "i" } },
+      ];
+    }
+    const allFancy = await FancyQuestionModel.find(query);
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Fancy retrieved successfully.",
+      data: allFancy,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   GetAllMatches,
   ToggleMatchStatus,
@@ -412,4 +441,5 @@ module.exports = {
   GetSingleMatch,
   UpdateMatchLogo,
   GetAdminSportsCount,
+  GetAllQuestion
 };

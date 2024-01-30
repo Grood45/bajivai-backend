@@ -4,6 +4,7 @@ const CasinoModel = require("../models/casino.model");
 const User = require("../models/user.model");
 const { ConvertStructureToBet } = require("../utils/ConvertStructureToBet");
 const { GetCurrentTime } = require("../utils/GetCurrentTime");
+const { FancyQuestionModel } = require("../models/fancyquestion.model");
 
 const GetAllBet = async (req, res) => {
   try {
@@ -23,6 +24,7 @@ const GetAllBet = async (req, res) => {
     if (match_id) {
       query.match_id = match_id;
       query2.MatchId = match_id;
+      query2.UserType = "bajivai";
     }
     if (category) {
       query.bet_category = category;
@@ -103,7 +105,9 @@ const GetAllBet = async (req, res) => {
 
     totalBet = sortByPlacedAt(totalBet);
     const allSportBets = await BetModel.countDocuments();
-    const allCasinoBets = await CasinoModel.countDocuments();
+    const allCasinoBets = await CasinoModel.countDocuments({
+      UserType: "bajivai",
+    });
 
     const winSportBet = await BetModel.countDocuments({ status: "win" });
 
@@ -117,22 +121,27 @@ const GetAllBet = async (req, res) => {
 
     const refundSportBet = await BetModel.countDocuments({
       status: "refund",
+      UserType: "bajivai",
     });
 
     const winCasinoBet = await CasinoModel.countDocuments({
       ResultType: 0,
+      UserType: "bajivai",
     });
 
     const loseCasinoBet = await CasinoModel.countDocuments({
       ResultType: 1,
+      UserType: "bajivai",
     });
 
     const pendingCasinoBet = await CasinoModel.countDocuments({
       Status: "running",
+      UserType: "bajivai",
     });
 
     const refundCasinoBet = await CasinoModel.countDocuments({
       Status: "void",
+      UserType: "bajivai",
     });
 
     let totalItems = totalBet.length || 0;
@@ -178,16 +187,15 @@ const GetAllBet = async (req, res) => {
   }
 };
 
-
-
 const GetAllBetsForResult = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; // Default to page 1 if not specified
     const limit = parseInt(req.query.limit) || 20; // Default to 10 items per page if not specified
     const searchQuery = req.query.search || req.query.name; // Default to an empty string if not specified
     const betCategory = req.query.bet_category || null; // Default to null if not specified
-    const status=req.query.status
-
+    const status = req.query.status;
+    const bet_type=req.query.bet_type;
+    const sport=req.query.sport;
     const skip = (page - 1) * limit;
 
     // Create a query object
@@ -207,9 +215,16 @@ const GetAllBetsForResult = async (req, res) => {
       query.bet_category = betCategory;
     }
 
-    if(status){
-      query.status=status
+    if (status) {
+      query.status = status;
     }
+    if(bet_type){
+      query.bet_type=bet_type
+    }
+    if(sport){
+      query.event_name=sport
+    }
+
     // Query the database with pagination, search, and filtering
     const bets = await BetModel.find(query).skip(skip).limit(limit);
     const totalBets = await BetModel.countDocuments(query);
@@ -255,9 +270,6 @@ const GetAllBetsForResult = async (req, res) => {
     });
   }
 };
-
-
-
 
 const GetAllBetByUserId = async (req, res) => {
   try {
@@ -447,7 +459,6 @@ const GetAllBetByUserId = async (req, res) => {
   }
 };
 
-
 async function PlaceBet(req, res) {
   try {
     const {
@@ -544,7 +555,6 @@ async function UpdateExposureLimit(req, res) {
   }
 }
 
-
 async function PlaceBetAndUpdateExposure(req, res) {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -565,9 +575,10 @@ async function PlaceBetAndUpdateExposure(req, res) {
       bet_category,
       question = "",
       league_name,
-      size=0,
+      size = 0,
       exposure_limit,
-     
+      question_id = "",
+      market_id = "",
     } = req.body;
 
     console.log(exposure_limit);
@@ -589,8 +600,36 @@ async function PlaceBetAndUpdateExposure(req, res) {
       bet_category,
       question: question,
       league_name,
-     
+      market_id,
+      question_id
     });
+
+    let singleQuestion = {
+      question: question,
+      match_id: match_id,
+      match_name: match_name,
+      league_id: league_id,
+      league_name: league_name,
+      created_at: GetCurrentTime(),
+      question_id: question_id,
+      market_id: market_id,
+    };
+    if (bet_category == "fancy") {
+      let questionData = await FancyQuestionModel.updateOne(
+        { question_id: question_id, match_id: match_id, question: question },
+        singleQuestion,
+        { upsert: true }
+      );
+      if (!questionData) {
+        await session.abortTransaction();
+        session.endSession();
+        return res.status(500).json({
+          status: 500,
+          success: false,
+          message: "Something went wrong while saving the question.",
+        });
+      }
+    }
     const savedBet = await newBet.save();
     if (!savedBet) {
       await session.abortTransaction();

@@ -14,7 +14,8 @@ const {
   GetAdmin, 
   UpdateSingleAdmin,
   UserLogin,
-  GetTodayWithdrawAmount
+  GetTodayWithdrawAmount,
+  GetTotalDepositAndWager
 } = require("../controllers/admin.controller");
 
 const AdminRouter = express.Router();
@@ -33,6 +34,7 @@ AdminRouter.get("/get-admin/:admin_id", GetAdmin);
 AdminRouter.patch("/update-admin/:admin_id", UpdateSingleAdmin);
 AdminRouter.post("/user-login", UserLogin);
 AdminRouter.get("/get-withdraw-amount/:user_id", GetTodayWithdrawAmount);
+// AdminRouter.post("/get-total-wager", GetTotalDepositAndWager);
 
 // add user , 
 module.exports = { AdminRouter };

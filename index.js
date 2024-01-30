@@ -135,56 +135,50 @@ io.on("connection", (socket) => {
   let fancyDataInterval;
   let generalTennisSoccerScoreInterval;
   // Listen for the "startFetchingCricketScore" event from the client
-  socket.on("startFetchingCricketScore", (matchId) => {
-    console.log(`Client wants to fetch cricket score for MatchID: ${matchId}`);
-    // Set up an interval to fetch and emit cricket score data every 3 seconds
-    cricketScoreInterval = setInterval(async () => {
-      try {
-        const url = `https://nikhilm.xyz/bettingapi/score_v1.php?Action=score&match_id=${matchId}`;
-        const response = await axios.post(
-          "http://3.108.170.225:8080/putapi",
-          {
-            url,
-          },
-          { timeout: 5000 }
-        );
+  // socket.on("startFetchingCricketScore", (matchId) => {
+  //   console.log(`Client wants to fetch cricket score for MatchID: ${matchId}`);
+  //   // Set up an interval to fetch and emit cricket score data every 3 seconds
+  //   cricketScoreInterval = setInterval(async () => {
+  //     try {
+  //       const url = `https://nikhilm.xyz/bettingapi/score_v1.php?Action=score&match_id=${matchId}`;
+  //       const response = await axios.post(
+  //         "http://3.108.170.225:8080/putapi",
+  //         {
+  //           url,
+  //         },
+  //         { timeout: 5000 }
+  //       );
 
-        if (!response.data.res) {
-          socket.emit("cricketScoreData", []); // Send an empty array to indicate no data
-          clearInterval(cricketScoreInterval);
-          return;
-        }
+  //       if (!response.data?.data) {
+  //         socket.emit("cricketScoreData", []); // Send an empty array to indicate no data
+  //         clearInterval(cricketScoreInterval);
+  //         return;
+  //       }
 
-        // Emit the fetched cricket score data to the client
-        socket.emit("cricketScoreData", response.data.res || []);
-      } catch (error) {
-        console.error("Error fetching cricket score data:", error);
-      }
-    }, 3000);
-  });
+  //       // Emit the fetched cricket score data to the client
+  //       socket.emit("cricketScoreData", response.data?.data || []);
+  //     } catch (error) {
+  //       console.error("Error fetching cricket score data:", error);
+  //     }
+  //   }, 3000);
+  // });
 
   // Listen for the "startFetchingScore" event from the client
   socket.on("startFetchingScore", (matchId) => {
     console.log(`Client wants to fetch general score for MatchID: ${matchId}`);
     generalScoreInterval = setInterval(async () => {
       try {
-        const url = `http://172.105.54.97:8085/api/cricketscoreballyball?id=${matchId}`;
-        const response = await axios.post(
-          "http://3.108.170.225:8080/putapi",
-          {
-            url,
-          },
-          { timeout: 5000 }
-        );
+        const url = `http://www.gameapi.jeeto68.online/api/cricket-score-ballyball?match_id=${matchId}`;
+        const response = await axios.get(url);
 
-        if (!response.data.res) {
+        if (!response.data?.data) {
           socket.emit("scoreData", []); // Send an empty array to indicate no data
           clearInterval(generalScoreInterval);
           return;
         }
 
         // Emit the fetched general score data to the client
-        socket.emit("scoreData", response?.data?.res?.data || []);
+        socket.emit("scoreData", response?.data?.data?.data || []);
       } catch (error) {
         console.error("Error fetching general score data:", error);
       }
@@ -197,23 +191,17 @@ io.on("connection", (socket) => {
     );
     generalTennisSoccerScoreInterval = setInterval(async () => {
       try {
-        const url = `http://172.105.54.97:8085/api/getScoreData?eventid=${matchId}`;
-        const response = await axios.post(
-          "http://3.108.170.225:8080/putapi",
-          {
-            url,
-          },
-          { timeout: 5000 }
-        );
+        const url = `http://www.gameapi.jeeto68.online/api/get-score-data?match_id=${matchId}`;
+        const response = await axios.get(url);
 
-        if (!response.data.res) {
+        if (!response.data?.data) {
           socket.emit("TennisSoccerScoreData", []); // Send an empty array to indicate no data
           clearInterval(generalTennisSoccerScoreInterval);
           return;
         }
 
         // Emit the fetched general score data to the client
-        socket.emit("TennisSoccerScoreData", response?.data?.res?.data || []);
+        socket.emit("TennisSoccerScoreData", response?.data?.data || []);
       } catch (error) {
         console.error("Error fetching tennis soccer score data:", error);
       }
@@ -226,26 +214,19 @@ io.on("connection", (socket) => {
     // Set up an interval to fetch and emit data every second
     oddsDataInterval = setInterval(async () => {
       try {
-        const url1 = `http://172.105.54.97:8085/api/getOdds?eventId=${match_id}`;
-        const response1 = await axios.post(
-          "http://3.108.170.225:8080/putapi",
-          {
-            url: url1,
-          },
-          { timeout: 5000 }
-        );
+        const url1 = `http://www.gameapi.jeeto68.online/api/get-odds?match_id=${match_id}`;
+        const response1 = await axios.get(url1);
 
-        // console.log(response1?.data?.res?.data?.t2,"l1")
-        if (!response1?.data?.res) {
+        if (!response1?.data?.data) {
           socket.emit("oddsData", []); // Send an empty array to indicate no data
           clearInterval(oddsDataInterval);
 
           return;
         }
-        // console.log(response1.data.res)
+        // console.log(response1.data?.data)
 
         // Emit the fetched data to the client
-        socket.emit("oddsData", response1?.data?.res?.data || []);
+        socket.emit("oddsData", response1?.data?.data || []);
       } catch (error) {
         clearInterval(oddsDataInterval);
         socket.emit("oddsData", []);
@@ -264,24 +245,17 @@ io.on("connection", (socket) => {
     // Set up an interval to fetch and emit data every second
     bookmakerDataInterval = setInterval(async () => {
       try {
-        const url1 = `http://172.105.54.97:8085/api/getOdds?eventId=${match_id}`;
-        const response1 = await axios.post(
-          "http://3.108.170.225:8080/putapi",
-          {
-            url: url1,
-          },
-          { timeout: 5000 }
-        );
-        // console.log(response1?.data?.res?.data?.t2,"l2")
-        // console.log(response1.data.res)
-        if (!response1?.data?.res) {
+        const url1 = `http://www.gameapi.jeeto68.online/api/get-odds?match_id=${match_id}`;
+        const response1 = await axios.get(url1);
+
+        if (!response1?.data?.data) {
           socket.emit("bookmakerData", []); // Send an empty array to indicate no data
           clearInterval(bookmakerDataInterval);
           return;
         }
 
         // Emit the fetched data to the client
-        socket.emit("bookmakerData", response1?.data?.res?.data || []);
+        socket.emit("bookmakerData", response1?.data?.data || []);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -295,23 +269,17 @@ io.on("connection", (socket) => {
     // Set up an interval to fetch and emit data every second
     fancyDataInterval = setInterval(async () => {
       try {
-        const url1 = `http://172.105.54.97:8085/api/getOdds?eventId=${match_id}`;
-        const response1 = await axios.post(
-          "http://3.108.170.225:8080/putapi",
-          {
-            url: url1,
-          },
-          { timeout: 5000 }
-        );
-        // console.log(response1?.data?.res?.data?.t3, "ll3")
-        if (!response1?.data?.res) {
+        const url1 = `http://www.gameapi.jeeto68.online/api/get-odds?match_id=${match_id}`;
+        const response1 = await axios.get(url1);
+
+        if (!response1?.data?.data) {
           socket.emit("fancyData", []); // Send an empty array to indicate no data
           clearInterval(fancyDataInterval);
           return;
         }
-        // console.log(response1.data.res)
+
         // Emit the fetched data to the client
-        socket.emit("fancyData", response1?.data?.res?.data || []);
+        socket.emit("fancyData", response1?.data?.data || []);
       } catch (error) {
         socket.emit("fancyData", []);
         console.error("Error fancy data:", error);
@@ -319,52 +287,42 @@ io.on("connection", (socket) => {
     }, 3000);
   });
 
-  socket.on("startDataFetching", async (category) => {
-    console.log(`Client wants to fetch data for EventID: ${category}`);
+  socket.on("startDataFetching", async (sport_id) => {
+    console.log(`Client wants to fetch data for EventID: ${sport_id}`);
     // Set up an interval to fetch and emit data every second
     // fancyDataInterval = setInterval(async () => {
     try {
-      const url = `http://172.105.54.97:8085/api/${category}`;
-      const response = await axios.post(
-        "http://3.108.170.225:8080/putapi",
-        {
-          url,
-        },
-        { timeout: 5000 }
-      );
-      // console.log(response1?.data?.res?.data?.t3, "ll3")
-      if (!response?.data?.res) {
+      const url = `http://www.gameapi.jeeto68.online/api/get-all-matches?sport_id=${sport_id}`;
+      const response = await axios.get(url);
+      if (!response?.data?.data) {
         socket.emit("Data", []); // Send an empty array to indicate no data
         // clearInterval(fancyDataInterval);
         return;
       }
-      // console.log(response1.data.res)
       // Emit the fetched data to the client
-      socket.emit("Data", response?.data?.res || []);
+      socket.emit("Data", response?.data?.data || []);
     } catch (error) {
       console.error("Error fancy data:", error);
     }
     // }, 2000);
   });
 
-  socket.on("startFetchingMatch", (category) => {
-    console.log(`Client wants to fetch match for : ${category}`);
+  socket.on("startFetchingMatch", (sport_id) => {
+    console.log(`Client wants to fetch match for : ${sport_id}`);
     // Set up an interval to fetch and emit general score data every 3 seconds
     matchDataInterval = setInterval(async () => {
       try {
-        const url = `http://172.105.54.97:8085/api/${category}`;
-        const response = await axios.post("http://3.108.170.225:8080/putapi", {
-          url,
-        });
+        const url = `http://www.gameapi.jeeto68.online/api/get-all-matches?sport_id=${sport_id}`;
+        const response = await axios.get(url);
 
-        if (!response.data.res) {
+        if (!response.data?.data) {
           socket.emit("matchData", []); // Send an empty array to indicate no data
           clearInterval(matchDataInterval);
           return;
         }
 
         // Emit the fetched general score data to the client
-        socket.emit("matchData", response.data.res || []);
+        socket.emit("matchData", response.data?.data || []);
       } catch (error) {
         console.error("Error fetching general score data:", error);
       }
@@ -395,14 +353,13 @@ io.on("connection", (socket) => {
     console.log(`Client wants to fetch match for : ${data}`);
     // Set up an interval to fetch and emit general score data every 3 seconds
 
-    // const url = `http://172.105.54.97:8085/api/${category}`;
+    // const url = `http://www.gameapi.jeeto68.online/api/${category}`;
     // const notification = await axios.post(
     //   "http://3.108.170.225:8080/putapi",
     //   data
     // );
 
     //
-    console.log(data, type);
     // promotion
     // deposit
     // withdraw
@@ -415,7 +372,7 @@ io.on("connection", (socket) => {
     console.log(`Client wants to fetch match for : ${data}`);
     // Set up an interval to fetch and emit general score data every 3 seconds
     try {
-      const url = `http://172.105.54.97:8085/api/${category}`;
+      const url = `http://www.gameapi.jeeto68.online/api/${category}`;
       const notification = await axios.post(
         "http://3.108.170.225:8080/putapi",
         data
@@ -460,6 +417,495 @@ io.on("connection", (socket) => {
   });
 });
 
+const ff = {
+  success: true,
+  data: {
+    t1: [
+      [
+        {
+          mid: "1.223742001",
+          mstatus: "OPEN",
+          mname: "MATCH_ODDS",
+          iplay: "True",
+          sid: "16606",
+          nat: "Australia",
+          b1: "1.62",
+          bs1: "4094.24",
+          b2: "1.61",
+          bs2: "872.52",
+          b3: "1.60",
+          bs3: "201.66",
+          l1: "1.64",
+          ls1: "301.57",
+          l2: "1.65",
+          ls2: "20.60",
+          l3: "1.66",
+          ls3: "2.46",
+          status: "ACTIVE",
+          srno: "1",
+          gtype: "Match",
+          utime: "0",
+        },
+        {
+          mid: "1.223742001",
+          mstatus: "OPEN",
+          mname: "MATCH_ODDS",
+          iplay: "True",
+          sid: "235",
+          nat: "West Indies",
+          b1: "3.65",
+          bs1: "19.58",
+          b2: "3.60",
+          bs2: "9.02",
+          b3: "3.55",
+          bs3: "119.18",
+          l1: "3.70",
+          ls1: "116.30",
+          l2: "3.75",
+          ls2: "317.23",
+          l3: "3.80",
+          ls3: "2107.45",
+          status: "ACTIVE",
+          srno: "2",
+          gtype: "Match",
+          utime: "0",
+        },
+        {
+          mid: "1.223742001",
+          mstatus: "OPEN",
+          mname: "MATCH_ODDS",
+          iplay: "True",
+          sid: "60443",
+          nat: "The Draw",
+          b1: "8.80",
+          bs1: "98.52",
+          b2: "8.60",
+          bs2: "484.70",
+          b3: "8.40",
+          bs3: "270.21",
+          l1: "9.00",
+          ls1: "97.23",
+          l2: "9.20",
+          ls2: "7.77",
+          l3: "9.40",
+          ls3: "2.50",
+          status: "ACTIVE",
+          srno: "3",
+          gtype: "Match",
+          utime: "0",
+        },
+      ],
+    ],
+    t2: [
+      {
+        bm1: [
+          {
+            mid: "1.223742001",
+            mname: "Bookmaker",
+            remark:
+              "Australian Open Tennis Semifinals Matches Bets Started In Our Exchange",
+            remark1: "",
+            min: "100.00",
+            max: "500000.00",
+            sid: "3",
+            nat: "The Draw",
+            b1: "0.00",
+            bs1: "0.00",
+            l1: "0.00",
+            ls1: "0.00",
+            s: "SUSPENDED",
+            sr: "3",
+            gtype: "Match1",
+            utime: "0",
+            b2: "0.00",
+            bs2: "0.00",
+            b3: "0.00",
+            bs3: "0.00",
+            l2: "0.00",
+            ls2: "0.00",
+            l3: "0.00",
+            ls3: "0.00",
+            b1s: "False",
+            b2s: "False",
+            b3s: "False",
+            l1s: "False",
+            l2s: "False",
+            l3s: "False",
+          },
+          {
+            mid: "1.223742001",
+            mname: "Bookmaker",
+            remark:
+              "Australian Open Tennis Semifinals Matches Bets Started In Our Exchange",
+            remark1: "",
+            min: "100.00",
+            max: "500000.00",
+            sid: "2",
+            nat: "West Indies",
+            b1: "0.00",
+            bs1: "0.00",
+            l1: "0.00",
+            ls1: "0.00",
+            s: "SUSPENDED",
+            sr: "2",
+            gtype: "Match1",
+            utime: "0",
+            b2: "0.00",
+            bs2: "0.00",
+            b3: "0.00",
+            bs3: "0.00",
+            l2: "0.00",
+            ls2: "0.00",
+            l3: "0.00",
+            ls3: "0.00",
+            b1s: "False",
+            b2s: "False",
+            b3s: "False",
+            l1s: "False",
+            l2s: "False",
+            l3s: "False",
+          },
+          {
+            mid: "1.223742001",
+            mname: "Bookmaker",
+            remark:
+              "Australian Open Tennis Semifinals Matches Bets Started In Our Exchange",
+            remark1: "",
+            min: "100.00",
+            max: "500000.00",
+            sid: "1",
+            nat: "Australia",
+            b1: "0.00",
+            bs1: "0.00",
+            l1: "0.00",
+            ls1: "0.00",
+            s: "SUSPENDED",
+            sr: "1",
+            gtype: "Match1",
+            utime: "0",
+            b2: "0.00",
+            bs2: "0.00",
+            b3: "0.00",
+            bs3: "0.00",
+            l2: "0.00",
+            ls2: "0.00",
+            l3: "0.00",
+            ls3: "0.00",
+            b1s: "False",
+            b2s: "False",
+            b3s: "False",
+            l1s: "False",
+            l2s: "False",
+            l3s: "False",
+          },
+        ],
+        bm2: [],
+      },
+    ],
+    t3: [
+      {
+        mid: "1.223742001",
+        sid: "232",
+        nat: "10 over run AUS",
+        b1: "39.00",
+        bs1: "100.00",
+        l1: "37.00",
+        ls1: "100.00",
+        b2: "0.00",
+        bs2: "0.00",
+        l2: "0.00",
+        ls2: "0.00",
+        b3: "0.00",
+        bs3: "0.00",
+        l3: "0.00",
+        ls3: "0.00",
+        gtype: "Fancy",
+        utime: "0",
+        gvalid: "0",
+        gstatus: "",
+        remark: "",
+        min: "100.00",
+        max: "100000.00",
+        srno: "1",
+        s1: "0",
+        s2: "0",
+        ballsess: "1",
+      },
+      {
+        mid: "1.223742001",
+        sid: "239",
+        nat: "Only 7 over run AUS",
+        b1: "3.00",
+        bs1: "100.00",
+        l1: "2.00",
+        ls1: "100.00",
+        b2: "0.00",
+        bs2: "0.00",
+        l2: "0.00",
+        ls2: "0.00",
+        b3: "0.00",
+        bs3: "0.00",
+        l3: "0.00",
+        ls3: "0.00",
+        gtype: "Fancy",
+        utime: "0",
+        gvalid: "0",
+        gstatus: "",
+        remark: "",
+        min: "100.00",
+        max: "50000.00",
+        srno: "1",
+        s1: "0",
+        s2: "0",
+        ballsess: "2",
+      },
+      {
+        mid: "1.223742001",
+        sid: "263",
+        nat: "1st Innings run AUS",
+        b1: "239.00",
+        bs1: "100.00",
+        l1: "235.00",
+        ls1: "100.00",
+        b2: "0.00",
+        bs2: "0.00",
+        l2: "0.00",
+        ls2: "0.00",
+        b3: "0.00",
+        bs3: "0.00",
+        l3: "0.00",
+        ls3: "0.00",
+        gtype: "Fancy",
+        utime: "0",
+        gvalid: "0",
+        gstatus: "",
+        remark: "",
+        min: "100.00",
+        max: "50000.00",
+        srno: "4",
+        s1: "0",
+        s2: "0",
+        ballsess: "1",
+      },
+      {
+        mid: "1.223742001",
+        sid: "264",
+        nat: "1st Innings run bhav AUS",
+        b1: "235.00",
+        bs1: "80.00",
+        l1: "235.00",
+        ls1: "95.00",
+        b2: "0.00",
+        bs2: "0.00",
+        l2: "0.00",
+        ls2: "0.00",
+        b3: "0.00",
+        bs3: "0.00",
+        l3: "0.00",
+        ls3: "0.00",
+        gtype: "Fancy",
+        utime: "0",
+        gvalid: "0",
+        gstatus: "",
+        remark: "",
+        min: "100.00",
+        max: "100000.00",
+        srno: "4",
+        s1: "0",
+        s2: "0",
+        ballsess: "1",
+      },
+      {
+        mid: "1.223742001",
+        sid: "277",
+        nat: "Fall of 5th wkt AUS",
+        b1: "61.00",
+        bs1: "90.00",
+        l1: "61.00",
+        ls1: "110.00",
+        b2: "0.00",
+        bs2: "0.00",
+        l2: "0.00",
+        ls2: "0.00",
+        b3: "0.00",
+        bs3: "0.00",
+        l3: "0.00",
+        ls3: "0.00",
+        gtype: "Fancy",
+        utime: "0",
+        gvalid: "0",
+        gstatus: "",
+        remark: "",
+        min: "100.00",
+        max: "200000.00",
+        srno: "5",
+        s1: "0",
+        s2: "0",
+        ballsess: "1",
+      },
+      {
+        mid: "1.223742001",
+        sid: "7",
+        nat: "U Khawaja run(AUS vs WI)adv",
+        b1: "46.00",
+        bs1: "90.00",
+        l1: "46.00",
+        ls1: "110.00",
+        b2: "0.00",
+        bs2: "0.00",
+        l2: "0.00",
+        ls2: "0.00",
+        b3: "0.00",
+        bs3: "0.00",
+        l3: "0.00",
+        ls3: "0.00",
+        gtype: "Fancy",
+        utime: "0",
+        gvalid: "0",
+        gstatus: "",
+        remark: "",
+        min: "100.00",
+        max: "200000.00",
+        srno: "6",
+        s1: "0",
+        s2: "0",
+        ballsess: "1",
+      },
+      {
+        mid: "1.223742001",
+        sid: "283",
+        nat: "M Marsh run",
+        b1: "33.00",
+        bs1: "90.00",
+        l1: "33.00",
+        ls1: "110.00",
+        b2: "0.00",
+        bs2: "0.00",
+        l2: "0.00",
+        ls2: "0.00",
+        b3: "0.00",
+        bs3: "0.00",
+        l3: "0.00",
+        ls3: "0.00",
+        gtype: "Fancy",
+        utime: "0",
+        gvalid: "0",
+        gstatus: "",
+        remark: "",
+        min: "100.00",
+        max: "200000.00",
+        srno: "6",
+        s1: "0",
+        s2: "0",
+        ballsess: "1",
+      },
+      {
+        mid: "1.223742001",
+        sid: "280",
+        nat: "5th wkt pship boundaries AUS",
+        b1: "6.00",
+        bs1: "100.00",
+        l1: "5.00",
+        ls1: "100.00",
+        b2: "0.00",
+        bs2: "0.00",
+        l2: "0.00",
+        ls2: "0.00",
+        b3: "0.00",
+        bs3: "0.00",
+        l3: "0.00",
+        ls3: "0.00",
+        gtype: "Fancy",
+        utime: "0",
+        gvalid: "0",
+        gstatus: "",
+        remark: "",
+        min: "100.00",
+        max: "50000.00",
+        srno: "7",
+        s1: "0",
+        s2: "0",
+        ballsess: "1",
+      },
+      {
+        mid: "1.223742001",
+        sid: "13",
+        nat: "U Khawaja Boundaries(AUS vs WI)adv",
+        b1: "7.00",
+        bs1: "100.00",
+        l1: "6.00",
+        ls1: "100.00",
+        b2: "0.00",
+        bs2: "0.00",
+        l2: "0.00",
+        ls2: "0.00",
+        b3: "0.00",
+        bs3: "0.00",
+        l3: "0.00",
+        ls3: "0.00",
+        gtype: "Fancy",
+        utime: "0",
+        gvalid: "0",
+        gstatus: "",
+        remark: "",
+        min: "100.00",
+        max: "50000.00",
+        srno: "8",
+        s1: "0",
+        s2: "0",
+        ballsess: "1",
+      },
+      {
+        mid: "1.223742001",
+        sid: "284",
+        nat: "M Marsh boundaries",
+        b1: "6.00",
+        bs1: "100.00",
+        l1: "5.00",
+        ls1: "100.00",
+        b2: "0.00",
+        bs2: "0.00",
+        l2: "0.00",
+        ls2: "0.00",
+        b3: "0.00",
+        bs3: "0.00",
+        l3: "0.00",
+        ls3: "0.00",
+        gtype: "Fancy",
+        utime: "0",
+        gvalid: "0",
+        gstatus: "",
+        remark: "",
+        min: "100.00",
+        max: "50000.00",
+        srno: "8",
+        s1: "0",
+        s2: "0",
+        ballsess: "1",
+      },
+    ],
+    t4: [
+      {
+        mid: "1.223742001",
+        sid: "2558",
+        nat: "5th wkt Caught out AUS",
+        b1: "1.45",
+        bs1: "100000.00",
+        l1: "1.65",
+        ls1: "100000.00",
+        gtype: "fancy1",
+        utime: "0",
+        gvalid: "0",
+        gstatus: "",
+        remark: "",
+        min: "100.00",
+        max: "50000.00",
+        srno: "1",
+      },
+    ],
+  },
+};
+
 // console.log(GetCurrentTime().split(" ")[0])
 
 // function paginateArray(array, page, limit) {
@@ -487,18 +933,16 @@ const SaveLeagueCornJob = () => {
   console.log("Cron job executed at:", new Date());
   // Add your task to be executed every 30 seconds here
   // Start the server
-saveLeague()
-
+  saveLeague();
 };
 
 const SaveMatchCornJob = () => {
   console.log("Cron job executed at:", new Date());
   // Add your task to be executed every 30 seconds here
   // Start the server
-  
-  SaveMatch()
-};
 
+  SaveMatch();
+};
 
 // Schedule a task at 11:00 PM every night
 cron.schedule("0 22 * * *", SaveLeagueCornJob);

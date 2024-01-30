@@ -4,10 +4,10 @@ const { GetCurrentTime } = require("../../utils/GetCurrentTime");
 
 const fetchCompetitionData = async (url) => {
   try {
-    const response = await axios.post("http://3.108.170.225:8080/putapi", {
-      url,
-    });
-    return response?.data?.res?.data?.t1 || response?.data?.res || [];
+    const response = await axios.get(url);
+    // console.log(response.data, "llll")
+    return response?.data?.data?.t1 || response?.data?.data|| [];
+
   } catch (error) {
     console.error("Error fetching competition data:", error.message);
     return [];
@@ -54,11 +54,11 @@ const updateOrInsertLeague = async (leagueData) => {
 };
 
 const saveLeague = async () => {
-  const urlCricket = "http://172.105.54.97:8085/api/getCompetitions?id=4";
+  const urlCricket = "http://www.gameapi.jeeto68.online/api/get-all-leagues?sport_id=4";
 
-  const urlTennis = "http://172.105.54.97:8085/api/tennis";
+  const urlTennis = "http://www.gameapi.jeeto68.online/api/get-all-matches?sport_id=2";
 
-  const urlSoccer = "http://172.105.54.97:8085/api/socker";
+  const urlSoccer = "http://www.gameapi.jeeto68.online/api/get-all-matches?sport_id=1";
 
   const response1 = (await fetchCompetitionData(urlCricket)) || [];
   const response2 = (await fetchCompetitionData(urlSoccer)) || [];
@@ -76,7 +76,7 @@ const saveLeague = async () => {
 
   // Process and insert/update data for soccer, tennis, and cricket
   for (const item of response1) {
-    item.league_id = item.competition.id;
+    item.league_id = item.competition.id;   
     item.sport_id = sportMappings[4];
     item.status = true;
     item.name = item.competition.name;
