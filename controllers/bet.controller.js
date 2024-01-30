@@ -194,8 +194,9 @@ const GetAllBetsForResult = async (req, res) => {
     const searchQuery = req.query.search || req.query.name; // Default to an empty string if not specified
     const betCategory = req.query.bet_category || null; // Default to null if not specified
     const status = req.query.status;
-    const bet_type=req.query.bet_type;
-    const sport=req.query.sport;
+    const bet_type = req.query.bet_type;
+    const question = req.query.question;
+    const sport = req.query.sport;
     const skip = (page - 1) * limit;
 
     // Create a query object
@@ -209,20 +210,21 @@ const GetAllBetsForResult = async (req, res) => {
         { question: { $regex: searchQuery, $options: "i" } },
       ];
     }
-
     // Add filter by bet_category if provided
     if (betCategory) {
       query.bet_category = betCategory;
     }
-
     if (status) {
       query.status = status;
     }
-    if(bet_type){
-      query.bet_type=bet_type
+    if (bet_type) {
+      query.bet_type = bet_type;
     }
-    if(sport){
-      query.event_name=sport
+    if (sport) {
+      query.event_name = sport;
+    }
+    if (question) {
+      query.question = question;
     }
 
     // Query the database with pagination, search, and filtering
@@ -601,7 +603,7 @@ async function PlaceBetAndUpdateExposure(req, res) {
       question: question,
       league_name,
       market_id,
-      question_id
+      question_id,
     });
 
     let singleQuestion = {
