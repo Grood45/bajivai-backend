@@ -14,6 +14,7 @@ const GetAllMatches = async (req, res) => {
     const { category } = req.query;
     const nameQuery = req.query.name || "";
     const skip = (page - 1) * limit;
+    const sport = req.query.sport;
 
     // Fetch only active league IDs from LeagueModel
     const activeLeagueIds = await LeagueModel.distinct("league_id", {
@@ -38,6 +39,9 @@ const GetAllMatches = async (req, res) => {
         { match_name: { $regex: nameQuery, $options: "i" } },
         { league_name: { $regex: nameQuery, $options: "i" } },
       ];
+    }
+    if (sport) {
+      query.sport_name = sport;
     }
 
     const sortCriteria = { status: 1 };
@@ -441,5 +445,5 @@ module.exports = {
   GetSingleMatch,
   UpdateMatchLogo,
   GetAdminSportsCount,
-  GetAllQuestion
+  GetAllQuestion,
 };
