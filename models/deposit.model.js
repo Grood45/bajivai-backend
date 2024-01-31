@@ -77,6 +77,14 @@ const transactionGatewaySchema = new Schema({
     type: String,
     default: "deposit",
   },
+  wager_amount: {
+    type: Number,
+    default: 0,
+  },
+  total_deposit_amount:{
+    type:Number, default:0
+  }
+  
 });
 
 const DepositModel = mongoose.model("Deposit", transactionGatewaySchema);

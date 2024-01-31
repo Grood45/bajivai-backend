@@ -93,6 +93,7 @@ const Deduct = async (req, res) => {
       PlayerIp,
       GameTypeName,
       UserId: User.user_id || "",
+      UserType: User.user_type,
     };
     if (!Username) {
       return res.status(200).json({
@@ -185,7 +186,7 @@ const Deduct = async (req, res) => {
       }
     }
 
-    if ((User.amount-User.exposure_limit) >= Amount) {
+    if (User.amount - User.exposure_limit >= Amount) {
       if (casino.length > 0) {
         let prev_amount = casino[casino.length - 1].Amount;
         let data = await CasinoModel.findOneAndUpdate(
@@ -218,7 +219,7 @@ const Deduct = async (req, res) => {
           BetAmount: Amount,
         });
       }
-    } else if ((User.amount-User.exposure_limit) < Amount) {
+    } else if (User.amount - User.exposure_limit < Amount) {
       return res.status(200).json({
         Balance: User.amount.toFixed(1),
         AccountName: User.username,

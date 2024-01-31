@@ -7,7 +7,7 @@ const { GetCurrentTime } = require("../utils/GetCurrentTime");
 
 const AddReferalCode = async (req, res) => {
   const { referral_code, username, user_id } = req.body;
-  console.log(referral_code, username)
+  console.log(referral_code, username);
   try {
     const user = await User.findOneAndUpdate(
       { referral_code: referral_code },
@@ -43,11 +43,12 @@ const AddReferalCode = async (req, res) => {
 const SettleReferAndEarn = async (req, res) => {
   try {
     // getting all user
+
     const user = await User.find();
     let amount = 0;
     let total_deposit = 0;
     let total_withdraw = 0;
-    console.log(user);
+    // console.log(user);
 
     // map all user
     for (let u = 0; u < user.length; u++) {
@@ -143,6 +144,8 @@ const CalculateWithdrawAmount = async (user_id) => {
   return totalAmount;
 };
 
+
+
 const CalculateDepositAmount = async (user_id) => {
   const totalWithdrawAmount = await DepositModel.aggregate([
     {
@@ -160,7 +163,7 @@ const CalculateDepositAmount = async (user_id) => {
     totalWithdrawAmount.length > 0 ? totalWithdrawAmount[0].totalAmount : 0;
   return totalAmount;
 };
-
+//In this calculating the total amount of given percentage.
 const CalculatePercentageOfAmount = (
   deposit,
   withdraw,

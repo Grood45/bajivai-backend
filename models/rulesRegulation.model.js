@@ -95,6 +95,11 @@ const rulesRegulationSchema = new mongoose.Schema({
     default: true,
     required: true,
   },
+  
+  bet_timing: {
+    type: Number,
+    default: 4000,
+  },
 });
 
 const RulesRegulation = mongoose.model(

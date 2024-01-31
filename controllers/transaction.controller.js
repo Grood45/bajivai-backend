@@ -3,6 +3,9 @@ const DepositModel = require("../models/deposit.model");
 const { v4: uuidv4 } = require("uuid");
 const { GetCurrentTime } = require("../utils/GetCurrentTime");
 const User = require("../models/user.model");
+const CasinoModel = require("../models/casino.model");
+const { BetModel } = require("../models/bet.model");
+const { default: mongoose } = require("mongoose");
 
 const GetAllWithdrawTransaction = async (req, res) => {
   try {
@@ -753,7 +756,10 @@ async function UpdateWithdrawById(req, res) {
           let final_amount = user.amount - withdrawData.withdraw_amount;
           const updatedUser = await User.findOneAndUpdate(
             { user_id: user_id },
-            { amount: final_amount },
+            {
+              amount: final_amount,
+              $inc: { total_withdraw_amount: withdrawData.withdraw_amount },
+            },
             { new: true } // This option returns the modified document
           );
           return res.status(200).json({
@@ -842,17 +848,21 @@ async function UpdateDepositById(req, res) {
 
         const amount = final_deposit_amount + user.amount;
 
-        const updatedUser = await User.findOneAndUpdate(
-          { user_id: user_id },
-          { amount: Number(amount) },
-          { new: true } // This option returns the modified document
-        );
         const deposit = await DepositModel.findOneAndUpdate(
           { _id: _id },
           deposit_status,
           {
             new: true,
           }
+        );
+        const updatedUser = await User.findOneAndUpdate(
+          { user_id: user_id },
+          {
+            amount: Number(amount),
+            $inc: { total_deposit_amount: deposit.deposit_amount },
+          },
+
+          { new: true } // This option returns the modified document
         );
         return res.status(200).json({
           status: 200,
@@ -957,6 +967,125 @@ async function GetTransactionsPl(req, res) {
   }
 }
 
+const GetTotalDepositAndWager = async (req, res) => {
+  // let transactionSeason=mongoose.startSession();
+  const { username, user_id } = req.body;
+  try {
+    if (!username || !user_id) {
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message: "Invalid req body.",
+      });
+    }
+
+    let user = await User.findOne({ username: username, user_id: user_id });
+
+    let totalWithdrawAmount = 0;
+    let totalDepositAmount = 0;
+
+    let casinoData = await CasinoModel.find({
+      Username: username,
+      UserId: user_id,
+      Status: "settled",
+      ReturnStake: 0,
+    });
+
+    let sportData = await BetModel.find({
+      username: username,
+      user_id: user_id,
+      result: "",
+      rate: { $gt: 1.4 },
+    });
+
+    if (sportData.length == 0 || casinoData.length == 0) {
+      return res.status(200).json({
+        status: 200,
+        success: false,
+        data: {
+          totalDeposit: totalDepositAmount,
+          totalWithdraw: totalWithdrawAmount,
+          totalWager: 0,
+          wagerLeft: 0,
+        },
+        message: "Data retrieved successfully..",
+      });
+    }
+
+    const allDeposit = await DepositModel.find({
+      username: username,
+      user_id: user_id,
+      status: "approved",
+    });
+    const allWithdraw = await WithdrawModel.find({
+      username: username,
+      user_id: user_id,
+      status: "approved",
+    });
+
+    const getTotalDepositAmount = () => {
+      let totalDeposit = 0;
+      for (let h = 0; h < allDeposit.length; h++) {
+        let deposit = allDeposit[h];
+        totalDeposit += deposit.deposit_amount;
+      }
+      return totalDeposit || 0;
+    };
+    const getTotalWithdrawAmount = () => {
+      let totalWithdraw = 0;
+      for (let h = 0; h < allWithdraw.length; h++) {
+        let withdraw = allWithdraw[h];
+        totalWithdraw += withdraw.withdraw_amount;
+      }
+      return totalWithdraw || 0;
+    };
+
+    const totalWagerOfCasino = () => {
+      let totalWager = 0;
+      for (let h = 0; h < casinoData.length; h++) {
+        let casino = casinoData[h];
+        totalWager += casino.Amount;
+      }
+      return totalWager || 0;
+    };
+
+    const totalWagerOfSport = () => {
+      let totalWager = 0;
+      for (let h = 0; h < sportData.length; h++) {
+        let sport = sportData[h];
+        totalWager += sport.Amount;
+      }
+      return totalWager || 0;
+    };
+
+    let totalCompletedWager = totalWagerOfCasino() + totalWagerOfSport();
+    // console.log(getTurnOver(), totalWager());
+    let wagerLeft = getTotalDepositAmount() - totalCompletedWager;
+    console.log(wagerLeft);
+    wagerLeft = wagerLeft > 0 ? wagerLeft : 0;
+    // transactionSeason.emit()
+    res.status(200).json({
+      status: 200,
+      success: false,
+      data: {
+        totalDeposit: totalDepositAmount || getTotalDepositAmount(),
+        totalWithdraw: totalWithdrawAmount || getTotalWithdrawAmount(),
+        totalCompletedWager: totalCompletedWager,
+        totalWager: getTotalDepositAmount(),
+        wagerLeft: wagerLeft,
+      },
+      message: "Data retrieved successfully.",
+    });
+  } catch (error) {
+    // transactionSeason.abort()
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   GetAllWithdrawTransaction,
   GetAllDepositTransaction,
@@ -970,4 +1099,5 @@ module.exports = {
   UpdateWithdrawById,
   UpdateDepositById,
   GetTransactionsPl,
+  GetTotalDepositAndWager,
 };

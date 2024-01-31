@@ -34,9 +34,14 @@ const FancyQuestionSchema = new Schema({
   created_at: {
     type: String,
   },
+  market_id: { type: String, default:"" },
+  question_id: { type: String, default:"" },
 });
-
 
 // Create the BetHistory model
 const FancyQuestionModel = mongoose.model("fancyquestion", FancyQuestionSchema);
 module.exports = { FancyQuestionModel };
+
+// 1- get all bet by question.
+// 2- filter by all parameter.
+// 3- declaire the result manupulate user amount and exposure according to that.

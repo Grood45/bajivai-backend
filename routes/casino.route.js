@@ -12,7 +12,6 @@ const {
 
 const CasinoRouter = express.Router();
 
-
 CasinoRouter.post("/GetBalance", GetBalance);
 CasinoRouter.post("/Deduct", Deduct);
 CasinoRouter.post("/Settle", Settle);
@@ -21,3 +20,4 @@ CasinoRouter.post("/Cancel", Cancel);
 CasinoRouter.post("/Bonus", Bonus);
 CasinoRouter.post("/ReturnStake", ReturnStake);
 CasinoRouter.post("/GetBetStatus", GetBetStatus);
+module.exports = { CasinoRouter };
