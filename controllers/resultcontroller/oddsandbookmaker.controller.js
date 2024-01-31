@@ -181,6 +181,7 @@ const User = require("../../models/user.model");
 async function DeclaireMatchResultAndUpdateExposure(req, res) {
   const session = await mongoose.startSession();
   session.startTransaction();
+
   try {
     const { match_id } = req.params;
     const { runner1, runner2, team, type } = req.body;
@@ -194,7 +195,7 @@ async function DeclaireMatchResultAndUpdateExposure(req, res) {
       return res.status(200).json({
         status: 200,
         success: true,
-        data: { match, updatedBets },
+        data: {},
         message: "No bet found",
       });
     }
@@ -368,4 +369,37 @@ async function DeclaireMatchResultAndUpdateExposure(req, res) {
     });
   }
 }
+
+const DeclaireRefundResult = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const allBetsForMatch = await BetModel.find({
+      match_id: match_id,
+      status: "pending",
+      bet_category: { $in: ["bookmaker", "odds"] },
+    });
+    if (!allBetsForMatch || allBetsForMatch.length == 0) {
+      return res.status(200).json({
+        status: 200,
+        success: true,
+        data: {},
+        message: "No bet found",
+      });
+    }
+    for (let g = 0; g < allBetsForMatch.length; g++) {
+      let bet = allBetsForMatch[g];
+    }
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    console.error("Error during exposure calculation and update:", error);
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: error?.message || "Something went wrong",
+    });
+  }
+};
+
 module.exports = { DeclaireMatchResultAndUpdateExposure };
