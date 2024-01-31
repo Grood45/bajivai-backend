@@ -170,7 +170,7 @@ io.on("connection", (socket) => {
       try {
         const url = `http://www.gameapi.jeeto68.online/api/cricket-score-ballyball?match_id=${matchId}`;
         const response = await axios.get(url);
-
+console.log(response.data, "gagagagga")
         if (!response.data?.data) {
           socket.emit("scoreData", []); // Send an empty array to indicate no data
           clearInterval(generalScoreInterval);

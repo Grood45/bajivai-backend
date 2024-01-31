@@ -228,7 +228,7 @@ const GetAllBetsForResult = async (req, res) => {
     }
 
     // Query the database with pagination, search, and filtering
-    const bets = await BetModel.find(query).skip(skip).limit(limit);
+    const bets = await BetModel.find(query).sort({placed_at:-1}).skip(skip).limit(limit);
     const totalBets = await BetModel.countDocuments(query);
     const totalOdds = await BetModel.countDocuments({
       bet_category: "odds",

@@ -126,7 +126,7 @@ const userSchema = new Schema({
   },
   max_limit: {
     type: Number,
-    default: 1000, // Default maximum limit value, adjust as needed
+    default: 50000, // Default maximum limit value, adjust as needed
   },
   min_limit: {
     type: Number,
