@@ -13,14 +13,21 @@ const GetAllWithdrawTransaction = async (req, res) => {
     const skip = (page - 1) * limit;
     let query = {};
     let withdraw = [];
+    // if (search) {
+    //   query = {
+    //     $or: [
+    //       { username: { $regex: search, $options: "i" } },
+    //       { withdraw_amount: { $regex: search.toString(), $options: "i" } },
+    //     ],
+    //   };
+    // }
     if (search) {
-      query = {
-        $or: [
-          { username: { $regex: search, $options: "i" } },
-          { withdraw_amount: { $regex: search.toString(), $options: "i" } },
-        ],
-      };
+      query.$or = [
+        { method: { $regex: search, $options: "i" } },
+        { username: { $regex: search, $options: "i" } },
+      ];
     }
+
 
     if (transaction_type == "all") {
       withdraw = await WithdrawModel.find(query)
