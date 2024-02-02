@@ -291,7 +291,7 @@ async function DeclaireMatchResultAndUpdateExposure(req, res) {
         updateMany: {
           filter: {
             match_id: match_id,
-            bet_category: { $in: ["odds"] },
+            bet_category: "odds",
           },
           update: [
             {
