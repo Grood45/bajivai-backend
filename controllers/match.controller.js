@@ -14,7 +14,7 @@ const GetAllMatches = async (req, res) => {
     const { category } = req.query;
     const nameQuery = req.query.name || "";
     const skip = (page - 1) * limit;
-    const sport = req.query.sport;
+    const sport = req.query.event_name;
 
     // Fetch only active league IDs from LeagueModel
     const activeLeagueIds = await LeagueModel.distinct("league_id", {
