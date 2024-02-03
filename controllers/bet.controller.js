@@ -196,7 +196,7 @@ const GetAllBetsForResult = async (req, res) => {
     const status = req.query.status;
     const bet_type = req.query.bet_type;
     const question = req.query.question;
-    const sport = req.query.sport;
+    const sport = req.query.event_name || null;
     const skip = (page - 1) * limit;
 
     // Create a query object
@@ -208,6 +208,9 @@ const GetAllBetsForResult = async (req, res) => {
         { match_name: { $regex: searchQuery, $options: "i" } }, // Case-insensitive search on the 'name' field
         { league_name: { $regex: searchQuery, $options: "i" } }, // Case-insensitive search on the 'description' field
         { question: { $regex: searchQuery, $options: "i" } },
+        { username: { $regex: searchQuery, $options: "i" } },
+
+        
       ];
     }
     // Add filter by bet_category if provided
