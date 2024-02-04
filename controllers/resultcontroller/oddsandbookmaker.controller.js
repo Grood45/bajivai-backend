@@ -313,23 +313,19 @@ async function DeclaireMatchResultAndUpdateExposure(req, res) {
             if (l1 < 0 && l2 < 0) {
               let min = Math.min(l1, l2);
               user.exposure_limit -= -1 * min; // Update the user's exposure
-              await user.save();
             } else if (l1 < 0) {
               user.exposure_limit -= -1 * l1; // Update the user's exposure
-              await user.save();
             } else if (l2 < 0) {
               user.exposure_limit -= -1 * l2; // Update the user's exposure
-              await user.save();
             }
             if (l3 < 0) {
               user.amount -= -1 * l3; // Update the user's amount
               user.exposure_limit -= -1 * l3; // Update the user's exposure
-              await user.save();
             }
             if (l3 >= 0) {
               user.amount += l3; // Update the user's amount
-              await user.save();
             }
+            await user.save();
           } catch (saveError) {
             await session.abortTransaction();
             session.endSession();
