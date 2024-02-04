@@ -140,7 +140,13 @@ const userSchema = new Schema({
     type: Number,
     default: 0, // Default 0
   },
-  user_type:{type:String, default:"bajivai", enum:["ludocasino", "bajivai"]}
+  user_type: {
+    type: String,
+    default: "bajivai",
+    enum: ["ludocasino", "bajivai"],
+  },
+  google_id: { type: String, default: "" },
+  secret_code:{ type: String, default: ""},
 });
 
 const User = mongoose.model("User", userSchema);
