@@ -202,7 +202,6 @@ const GetAllBetsForResult = async (req, res) => {
     // Create a query object
     const query = {};
 
-    // Add search functionality
     if (searchQuery) {
       query.$or = [
         { match_name: { $regex: searchQuery, $options: "i" } }, // Case-insensitive search on the 'name' field
