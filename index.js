@@ -52,6 +52,25 @@ const io = socketIo(httpServer, {
   },
 });
 
+
+const SaveMatchAndLeague = async (req, res) => {
+  try {
+    await saveLeague();
+    await SaveMatch();
+    res.status(200).json({
+      status: 200,
+      success: false,
+      message: error.message,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 // Middleware for parsing JSON requests
 server.use(express.json());
 server.use(cors());
@@ -71,6 +90,7 @@ server.use("/api/gameslider", GameSliderRoute);
 server.use("/api/casinoprovider", CasinoProviderRouter);
 server.use("/api/referearn", ReferAndEarnRoute);
 server.use("/api/result", ResultRouter);
+server.post("/api/update-match-data", SaveMatchAndLeague)
 server.post("/GetBalance", GetBalance);
 server.post("/Deduct", Deduct);
 server.post("/Settle", Settle);
