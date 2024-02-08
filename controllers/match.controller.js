@@ -436,6 +436,37 @@ const GetAllQuestion = async (req, res) => {
   }
 };
 
+const DeletePreviousMatch = async (req, res) => {
+  const { start_date, end_date } = req.query;
+  console.log(start_date,end_date)
+  if (!start_date || !end_date) {
+    return res.status(400).json({
+      status: 400,
+      success: false,
+      message: "Both start_date and end_date are required.",
+    });
+  }
+  try {
+    const filteredData = await MatchModel.deleteMany({
+      open_date: {
+        $gte: start_date,
+        $lte: end_date,
+      },
+    });
+    res.json({
+      status: 200,
+      success: true,
+      data: filteredData,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   GetAllMatches,
   ToggleMatchStatus,
@@ -446,4 +477,5 @@ module.exports = {
   UpdateMatchLogo,
   GetAdminSportsCount,
   GetAllQuestion,
+  DeletePreviousMatch
 };
