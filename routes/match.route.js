@@ -1,6 +1,6 @@
 
 const express=require("express");
-const { GetAllMatches, GetTennisMatches, GetCricketMatches, GetSoccerMatches, GetSingleMatch, UpdateMatchLogo, ToggleMatchStatus, GetAdminSportsCount, GetAllQuestion } = require("../controllers/match.controller");
+const { GetAllMatches, GetTennisMatches, GetCricketMatches, GetSoccerMatches, GetSingleMatch, UpdateMatchLogo, ToggleMatchStatus, GetAdminSportsCount, GetAllQuestion, DeletePreviousMatch } = require("../controllers/match.controller");
 
 MatchRoute=express.Router()
 MatchRoute.get("/get-all-match", GetAllMatches);
@@ -12,6 +12,7 @@ MatchRoute.patch("/update-team-logo/:match_id", UpdateMatchLogo);
 MatchRoute.patch("/update-match-status/:match_id", ToggleMatchStatus);
 MatchRoute.get("/get-admin-sports-count", GetAdminSportsCount);
 MatchRoute.get("/get-all-question", GetAllQuestion);
+MatchRoute.delete("/delete-previous-match", DeletePreviousMatch);
 
 
 module.exports={MatchRoute}
