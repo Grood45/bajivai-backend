@@ -439,6 +439,22 @@ const GetAllQuestion = async (req, res) => {
 const DeletePreviousMatch = async (req, res) => {
   const { start_date, end_date } = req.query;
   console.log(start_date,end_date)
+
+  const ConvertDate = (date) => {
+    console.log(date, "date");
+    let [month, day, year] = date.split(" ")[0].split("/")
+    month=month>9?month:"0"+month 
+    day=day>9?day:"0"+day
+    let finalDate = `${month}/${day}/${year} 12:00:00 AM`;
+    return finalDate;
+  };
+
+
+  let start=ConvertDate(start_date)
+  let end=ConvertDate(end_date)
+
+  console.log(start, "ll", end)
+
   if (!start_date || !end_date) {
     return res.status(400).json({
       status: 400,
@@ -448,10 +464,10 @@ const DeletePreviousMatch = async (req, res) => {
   }
   try {
     const filteredData = await MatchModel.deleteMany({
-      open_date: {
-        $gte: start_date,
-        $lte: end_date,
-      },
+      $or: [
+        { open_date: { $gte: start_date, $lte: end_date } }, // Match open_date within range
+        { open_date: { $gte: start, $lte: end } }, // Match open_date within range
+      ]
     });
     res.json({
       status: 200,
