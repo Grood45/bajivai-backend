@@ -244,6 +244,26 @@ const GetAllBetsForResult = async (req, res) => {
     const totalFancy = await BetModel.countDocuments({
       bet_category: "fancy",
     });
+
+    const totalOddsPending = await BetModel.countDocuments({
+      bet_category: "odds",
+      status: "pending"
+    });
+    
+    const totaTossPending = await BetModel.countDocuments({
+      bet_category: "toss",
+      status: "pending"
+    });
+    
+    const totalBookmakerPending = await BetModel.countDocuments({
+      bet_category: "bookmaker",
+      status: "pending"
+    });
+    
+    const totalFancyPending = await BetModel.countDocuments({
+      bet_category: "fancy",
+      status: "pending"
+    });
     const totalPages = Math.ceil(totalBets / limit);
 
     // Create a pagination object
@@ -261,9 +281,13 @@ const GetAllBetsForResult = async (req, res) => {
       message: "Bets retrieved successfully",
       pagination, // Include the pagination object in the response
       totalOdds,
+      totalOddsPending,
       totaToss,
+      totaTossPending,
       totalBookmaker,
+      totalBookmakerPending,
       totalFancy,
+      totalFancyPending
     });
   } catch (error) {
     console.error(error);
