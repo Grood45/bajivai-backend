@@ -437,15 +437,7 @@ const GetAllQuestion = async (req, res) => {
 };
 
 const DeletePreviousMatch = async (req, res) => {
-  const { match_ids = [] } = req.body;
-
-  if (match_ids.length == 0) {
-    return res.status(400).json({
-      status: 400,
-      success: false,
-      message: "MatchId required.",
-    });
-  }
+  const { match_ids=[] } = req.body;
   try {
     const filteredData = await MatchModel.deleteMany({
       match_id: { $in: match_ids },
