@@ -437,41 +437,24 @@ const GetAllQuestion = async (req, res) => {
 };
 
 const DeletePreviousMatch = async (req, res) => {
-  const { start_date, end_date } = req.query;
-  console.log(start_date,end_date)
+  const { match_ids = [] } = req.body;
 
-  const ConvertDate = (date) => {
-    console.log(date, "date");
-    let [month, day, year] = date.split(" ")[0].split("/")
-    month=month>9?month:"0"+month 
-    day=day>9?day:"0"+day
-    let finalDate = `${month}/${day}/${year} 12:00:00 AM`;
-    return finalDate;
-  };
-
-
-  let start=ConvertDate(start_date)
-  let end=ConvertDate(end_date)
-
-  console.log(start, "ll", end)
-
-  if (!start_date || !end_date) {
+  if (match_ids.length == 0) {
     return res.status(400).json({
       status: 400,
       success: false,
-      message: "Both start_date and end_date are required.",
+      message: "MatchId required.",
     });
   }
   try {
     const filteredData = await MatchModel.deleteMany({
-      $or: [
-        { open_date: { $gte: start_date, $lte: end_date } }, // Match open_date within range
-        { open_date: { $gte: start, $lte: end } }, // Match open_date within range
-      ]
+      match_id: { $in: match_ids },
     });
+
     res.json({
       status: 200,
       success: true,
+      message: "Match data delete successfull.",
       data: filteredData,
     });
   } catch (error) {
@@ -493,5 +476,5 @@ module.exports = {
   UpdateMatchLogo,
   GetAdminSportsCount,
   GetAllQuestion,
-  DeletePreviousMatch
+  DeletePreviousMatch,
 };
