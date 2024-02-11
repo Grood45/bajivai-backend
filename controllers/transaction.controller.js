@@ -473,9 +473,8 @@ const CreateDepositTransaction = async (req, res) => {
       });
     }
 
- 
     const deposit = new DepositModel(payload);
-    
+
     const depositData = await deposit.save();
     let notificationData = {
       user_id: user.user_id,
@@ -489,7 +488,7 @@ const CreateDepositTransaction = async (req, res) => {
       title: "New Deposit",
       timestamp: GetCurrentTime(),
       category: "deposit",
-      user_type:"bajivai"
+      user_type: "bajivai",
     };
     let timestamp = GetCurrentTime();
     payload = { ...notificationData, timestamp };
@@ -601,7 +600,7 @@ const CreateWithdrawTransaction = async (req, res) => {
       title: "New Withdaw.",
       timestamp: GetCurrentTime(),
       category: "withdraw",
-      user_type:"bajivai"
+      user_type: "bajivai",
     };
     let timestamp = GetCurrentTime();
     payload = { ...notificationData, timestamp };
@@ -1011,6 +1010,137 @@ async function GetTransactionsPl(req, res) {
   }
 }
 
+async function GetTransactionsPlForUser(req, res) {
+  const user_id = req.params.user_id; // Assuming userId is a route parameter
+  const type = req.query.type || "user"; // Type of user: "user" or "admin"
+  const username = req.query.username; // Assuming username is a query parameter
+  console.log(user_id, type, username);
+  try {
+    // Find deposits and withdrawals for the given user_id
+    const deposits = await DepositModel.aggregate([
+      {
+        $match: {
+          user_id,
+          username,
+          status: "approved",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalDeposits: {
+            $sum: {
+              $add: [
+                "$deposit_amount",
+                {
+                  $multiply: ["$deposit_amount", { $divide: ["$bonus", 100] }],
+                },
+              ],
+            },
+          },
+        },
+      },
+    ]);
+
+    const withdrawals = await WithdrawModel.aggregate([
+      {
+        $match: {
+          user_id,
+          username,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalWithdrawals: {
+            $sum: {
+              $add: [
+                "$withdraw_amount",
+                {
+                  $multiply: ["$withdraw_amount", { $divide: ["$bonus", 100] }],
+                },
+              ],
+            },
+          },
+        },
+      },
+    ]);
+
+    let rest_amount = 0;
+
+    if (type === "user") {
+      let user = await User.findOne({ username, user_id });
+      if (!user) {
+        return res.status(404).json({
+          status: 404,
+          success: true,
+          message: "User not found.",
+        });
+      }
+      rest_amount = user.amount;
+    }
+    // Calculate the total amount by subtracting withdrawals from deposits
+
+    const totalDeposits = deposits.length > 0 ? deposits[0].totalDeposits : 0;
+    const totalWithdrawals =
+      withdrawals.length > 0 ? withdrawals[0].totalWithdrawals : 0;
+
+    // Calculate casino profit/loss
+    const casinoPL = await CalculateCasinoPL(username, user_id);
+
+    // Calculate the total PL
+    const actualRest = totalDeposits - totalWithdrawals;
+    const currentAmount = rest_amount + (casinoPL < 0 ? -casinoPL : +casinoPL);
+    const sportsPL =
+      currentAmount > actualRest
+        ? currentAmount - actualRest
+        : actualRest - currentAmount;
+    console.log(actualRest, currentAmount, rest_amount);
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: "Amount retrieved successfully.",
+      casinoPL,
+      sportsPL,
+      allPL: sportsPL + casinoPL,
+    });
+  } catch (error) {
+    // Handle errors, log them, or return an appropriate response
+    console.error("Error fetching transactions:", error);
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: "Error fetching transactions.",
+      error: error.message,
+    });
+  }
+}
+
+// Function to calculate casino profit/loss
+async function CalculateCasinoPL(username, user_id) {
+  let casinoData = await CasinoModel.find({
+    Username: username,
+    UserId: user_id,
+    Status: "settled",
+    ReturnStake: 0,
+  });
+
+  let casinoPL = 0;
+  for (let casino of casinoData) {
+    if (casino.WinLoss == 0 || casino.WinLoss !== 0) {
+      casinoPL -= Number(casino.Amount);
+    }
+    if (casino.WinLoss != 0) {
+      casinoPL += Number(casino.WinLoss);
+    }
+  }
+  return casinoPL;
+}
+
+module.exports = {
+  GetTransactionsPl,
+};
+
 const GetTotalDepositAndWager = async (req, res) => {
   // let transactionSeason=mongoose.startSession();
   const { username, user_id } = req.body;
@@ -1145,4 +1275,5 @@ module.exports = {
   UpdateDepositById,
   GetTransactionsPl,
   GetTotalDepositAndWager,
+  GetTransactionsPlForUser,
 };
