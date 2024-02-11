@@ -363,8 +363,8 @@ const GetAllBetByUserId = async (req, res) => {
       bet2 = await CasinoModel.find(query2);
     } else if (status == "refund") {
       (query.status = "refund"),
-        (query2.Status = "void"),
-        (bet = await BetModel.find(query));
+      (query2.Status = "void"),
+      (bet = await BetModel.find(query));
       bet2 = await CasinoModel.find(query2);
     }
     let allSportBet = await BetModel.find({ user_id });
@@ -373,8 +373,8 @@ const GetAllBetByUserId = async (req, res) => {
     let totalBetAmount = 0;
     let casinoBetAmount = 0;
     let sportBetAmount = 0;
+    let totalBet = [...bet, ...allCasinoBet];
 
-    let totalBet = [...bet];
     let amountBet = [...allSportBet, ...allCasinoBet];
     // Iterate through all bets using a for loop
     for (let i = 0; i < totalBet.length; i++) {
@@ -386,7 +386,7 @@ const GetAllBetByUserId = async (req, res) => {
         sportBetAmount += bet.stake;
       }
     }
-
+    
     function sortByPlacedAt(arr) {
       // Sort the array of objects by the 'placed_at' field
       let ans = arr.sort((a, b) => {
@@ -401,27 +401,27 @@ const GetAllBetByUserId = async (req, res) => {
     const allCasinoBets = await CasinoModel.countDocuments({
       Username: username,
     });
-
+    
     const winSportBet = await BetModel.countDocuments({
       status: "win",
       user_id,
     });
-
+    
     const loseSportBet = await BetModel.countDocuments({
       status: "lose",
       user_id,
     });
-
+    
     const pendingSportBet = await BetModel.countDocuments({
       status: "pending",
       user_id,
     });
-
+    
     const refundSportBet = await BetModel.countDocuments({
       status: "refund",
       user_id,
     });
-
+    
     const winCasinoBet = await CasinoModel.countDocuments({
       ResultType: 0,
       Username: username,
@@ -431,7 +431,7 @@ const GetAllBetByUserId = async (req, res) => {
       ResultType: 1,
       Username: username,
     });
-
+    
     const pendingCasinoBet = await CasinoModel.countDocuments({
       Status: "running",
       Username: username,
@@ -445,7 +445,7 @@ const GetAllBetByUserId = async (req, res) => {
     let totalItems = totalBet.length || 0;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-
+    
     // Implementing pagination
     data = (totalBet || []).slice(startIndex, endIndex);
 
