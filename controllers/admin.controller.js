@@ -63,11 +63,12 @@ const GetAllUsers = async (req, res) => {
       query.status = true;
       users = await User.find(query).skip(skip).limit(parseInt(limit));
     }
-    const totalPages = Math.ceil(users.length / limit);
 
     // count all document.
 
     const allUsers = await User.countDocuments();
+    const totalPages = Math.ceil(allUsers / limit);
+
     const totalVerifiedUsers = await User.countDocuments({
       $or: [
         { email_verified: true },

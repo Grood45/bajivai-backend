@@ -63,7 +63,7 @@ const GetAllWithdrawTransaction = async (req, res) => {
     const rejectTransaction = await WithdrawModel.countDocuments({
       status: "reject",
     });
-    const totalPages = Math.ceil(withdraw.length / limit);
+    const totalPages = Math.ceil(allTransaction / limit);
     const pagination = {
       totalWithdrawal: withdraw.length,
       totalPages,
@@ -154,6 +154,8 @@ const GetAllDepositTransaction = async (req, res) => {
       console.log(query, 4);
     }
     const allTransaction = await DepositModel.countDocuments();
+    const totalPages = Math.ceil(allTransaction / limit);
+
     const approvedTransaction = await DepositModel.countDocuments({
       status: "approved",
     });
@@ -163,7 +165,6 @@ const GetAllDepositTransaction = async (req, res) => {
     const rejectTransaction = await DepositModel.countDocuments({
       status: "reject",
     });
-    const totalPages = Math.ceil(deposit.length / limit);
     const pagination = {
       totalDeposit: deposit.length,
       totalPages,
