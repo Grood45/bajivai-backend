@@ -23,9 +23,9 @@ const GetAllBet = async (req, res) => {
     let query2 = {};
     if (match_id) {
       query.match_id = match_id;
-      query2.MatchId = match_id;
-      query2.UserType = "bajivai";
+      // query2.MatchId = match_id;
     }
+    query2.UserType = "bajivai";
     if (category) {
       query.bet_category = category;
     }
@@ -208,8 +208,6 @@ const GetAllBetsForResult = async (req, res) => {
         { league_name: { $regex: searchQuery, $options: "i" } }, // Case-insensitive search on the 'description' field
         { question: { $regex: searchQuery, $options: "i" } },
         { username: { $regex: searchQuery, $options: "i" } },
-
-        
       ];
     }
     // Add filter by bet_category if provided
@@ -247,22 +245,22 @@ const GetAllBetsForResult = async (req, res) => {
 
     const totalOddsPending = await BetModel.countDocuments({
       bet_category: "odds",
-      status: "pending"
+      status: "pending",
     });
-    
+
     const totaTossPending = await BetModel.countDocuments({
       bet_category: "toss",
-      status: "pending"
+      status: "pending",
     });
-    
+
     const totalBookmakerPending = await BetModel.countDocuments({
       bet_category: "bookmaker",
-      status: "pending"
+      status: "pending",
     });
-    
+
     const totalFancyPending = await BetModel.countDocuments({
       bet_category: "fancy",
-      status: "pending"
+      status: "pending",
     });
     const totalPages = Math.ceil(totalBets / limit);
 
@@ -287,7 +285,7 @@ const GetAllBetsForResult = async (req, res) => {
       totalBookmaker,
       totalBookmakerPending,
       totalFancy,
-      totalFancyPending
+      totalFancyPending,
     });
   } catch (error) {
     console.error(error);
