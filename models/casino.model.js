@@ -34,6 +34,7 @@ const casinoSchema = new Schema({
   ReturnStake: { type: Number, default: 0 },
   EventType: { type: String, default: "casino" },
   UserId: { type: String },
+  UserType:{type:String},
   ExtraInfo: {
     SportType: { type: String, default: "" },
     MarketType: { type: String, default: "" },

@@ -25,6 +25,8 @@ function convertData(inputData) {
     Status,
     WinLoss,
     ResultTime,
+    GameTypeName,
+    GamePeriodId
   } = inputData;
 
   const outputData = {
@@ -36,7 +38,7 @@ function convertData(inputData) {
     placed_at: ConvertDateFormat(BetTime),
     event_type: "casino",
     league_id: "",
-    match_name: "",
+    match_name: GameTypeName||GamePeriodId,
     bet_type: "",
     stake: Amount,
     rate: 0,
