@@ -5,37 +5,34 @@ const MatchModel = require("../../models/match.model");
 const { FormatDate } = require("../../utils/FormatDataFor");
 
 const SaveMatch = async () => {
-  const Leagues = await LeagueModel.find();
+  const Leagues = await LeagueModel.find({sport_id:"4"});
   for (const league of Leagues) {
-    if (league.sport_id == "4") {
       const url = `http://www.gameapi.jeeto68.online/api/get-all-matches-by-sid-and-sportid?series_id=${league.league_id}&sport_id=4`;
       const response = await axios.get(url);
       let league_name = league.name;
       let league_id = league.league_id;
       let sport_id = league.sport_id;
       let matches = response?.data?.data || [];
-      
       for (const match of matches) {
         updateOrCreateMatches(match, league_id, sport_id, league_name);
       }
-    } else if (league.sport_id == 1) {
-      const response = await axios.get(
-        "http://www.gameapi.jeeto68.online/api/get-all-matches?sport_id=1"
-      );
-      let matches = response?.data?.data?.t1 || [];
-      for (const match of matches) {
-        updateOrCreateMatchesForTennisAndSoccer(match);
-      }
-    } else {
-      const response = await axios.get(
-        "http://www.gameapi.jeeto68.online/api/get-all-matches?sport_id=2"
-      );
-      let matches = response?.data?.data?.t1|| [];
-      for (const match of matches) {
-        updateOrCreateMatchesForTennisAndSoccer(match);
-      }
-    }
   }
+
+  const response1 = await axios.get(
+    "http://www.gameapi.jeeto68.online/api/get-all-matches?sport_id=1"
+  );
+  let matches1 = response1?.data?.data?.t1 || [];
+  for (const match of matches1) {
+    updateOrCreateMatchesForTennisAndSoccer(match);
+  }
+
+    const response = await axios.get(
+      "http://www.gameapi.jeeto68.online/api/get-all-matches?sport_id=2"
+    );
+    let matches = response?.data?.data?.t1|| [];
+    for (const match of matches) {
+      updateOrCreateMatchesForTennisAndSoccer(match);
+    }
   console.log("Done");
 };
 

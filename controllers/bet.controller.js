@@ -23,9 +23,9 @@ const GetAllBet = async (req, res) => {
     let query2 = {};
     if (match_id) {
       query.match_id = match_id;
-      query2.MatchId = match_id;
-      query2.UserType = "bajivai";
+      // query2.MatchId = match_id;
     }
+    query2.UserType = "bajivai";
     if (category) {
       query.bet_category = category;
     }
@@ -196,18 +196,18 @@ const GetAllBetsForResult = async (req, res) => {
     const status = req.query.status;
     const bet_type = req.query.bet_type;
     const question = req.query.question;
-    const sport = req.query.sport;
+    const sport = req.query.event_name || null;
     const skip = (page - 1) * limit;
 
     // Create a query object
     const query = {};
 
-    // Add search functionality
     if (searchQuery) {
       query.$or = [
         { match_name: { $regex: searchQuery, $options: "i" } }, // Case-insensitive search on the 'name' field
         { league_name: { $regex: searchQuery, $options: "i" } }, // Case-insensitive search on the 'description' field
         { question: { $regex: searchQuery, $options: "i" } },
+        { username: { $regex: searchQuery, $options: "i" } },
       ];
     }
     // Add filter by bet_category if provided
@@ -242,6 +242,26 @@ const GetAllBetsForResult = async (req, res) => {
     const totalFancy = await BetModel.countDocuments({
       bet_category: "fancy",
     });
+
+    const totalOddsPending = await BetModel.countDocuments({
+      bet_category: "odds",
+      status: "pending",
+    });
+
+    const totaTossPending = await BetModel.countDocuments({
+      bet_category: "toss",
+      status: "pending",
+    });
+
+    const totalBookmakerPending = await BetModel.countDocuments({
+      bet_category: "bookmaker",
+      status: "pending",
+    });
+
+    const totalFancyPending = await BetModel.countDocuments({
+      bet_category: "fancy",
+      status: "pending",
+    });
     const totalPages = Math.ceil(totalBets / limit);
 
     // Create a pagination object
@@ -259,9 +279,13 @@ const GetAllBetsForResult = async (req, res) => {
       message: "Bets retrieved successfully",
       pagination, // Include the pagination object in the response
       totalOdds,
+      totalOddsPending,
       totaToss,
+      totaTossPending,
       totalBookmaker,
+      totalBookmakerPending,
       totalFancy,
+      totalFancyPending,
     });
   } catch (error) {
     console.error(error);
@@ -339,8 +363,8 @@ const GetAllBetByUserId = async (req, res) => {
       bet2 = await CasinoModel.find(query2);
     } else if (status == "refund") {
       (query.status = "refund"),
-        (query2.Status = "void"),
-        (bet = await BetModel.find(query));
+      (query2.Status = "void"),
+      (bet = await BetModel.find(query));
       bet2 = await CasinoModel.find(query2);
     }
     let allSportBet = await BetModel.find({ user_id });
@@ -349,8 +373,8 @@ const GetAllBetByUserId = async (req, res) => {
     let totalBetAmount = 0;
     let casinoBetAmount = 0;
     let sportBetAmount = 0;
+    let totalBet = [...bet, ...allCasinoBet];
 
-    let totalBet = [...bet];
     let amountBet = [...allSportBet, ...allCasinoBet];
     // Iterate through all bets using a for loop
     for (let i = 0; i < totalBet.length; i++) {
@@ -362,7 +386,7 @@ const GetAllBetByUserId = async (req, res) => {
         sportBetAmount += bet.stake;
       }
     }
-
+    
     function sortByPlacedAt(arr) {
       // Sort the array of objects by the 'placed_at' field
       let ans = arr.sort((a, b) => {
@@ -377,27 +401,27 @@ const GetAllBetByUserId = async (req, res) => {
     const allCasinoBets = await CasinoModel.countDocuments({
       Username: username,
     });
-
+    
     const winSportBet = await BetModel.countDocuments({
       status: "win",
       user_id,
     });
-
+    
     const loseSportBet = await BetModel.countDocuments({
       status: "lose",
       user_id,
     });
-
+    
     const pendingSportBet = await BetModel.countDocuments({
       status: "pending",
       user_id,
     });
-
+    
     const refundSportBet = await BetModel.countDocuments({
       status: "refund",
       user_id,
     });
-
+    
     const winCasinoBet = await CasinoModel.countDocuments({
       ResultType: 0,
       Username: username,
@@ -407,7 +431,7 @@ const GetAllBetByUserId = async (req, res) => {
       ResultType: 1,
       Username: username,
     });
-
+    
     const pendingCasinoBet = await CasinoModel.countDocuments({
       Status: "running",
       Username: username,
@@ -421,7 +445,7 @@ const GetAllBetByUserId = async (req, res) => {
     let totalItems = totalBet.length || 0;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-
+    
     // Implementing pagination
     data = (totalBet || []).slice(startIndex, endIndex);
 

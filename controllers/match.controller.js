@@ -14,7 +14,7 @@ const GetAllMatches = async (req, res) => {
     const { category } = req.query;
     const nameQuery = req.query.name || "";
     const skip = (page - 1) * limit;
-    const sport = req.query.sport;
+    const sport = req.query.event_name;
 
     // Fetch only active league IDs from LeagueModel
     const activeLeagueIds = await LeagueModel.distinct("league_id", {
@@ -436,6 +436,28 @@ const GetAllQuestion = async (req, res) => {
   }
 };
 
+const DeletePreviousMatch = async (req, res) => {
+  const { match_ids=[] } = req.body;
+  try {
+    const filteredData = await MatchModel.deleteMany({
+      match_id: { $in: match_ids },
+    });
+
+    res.json({
+      status: 200,
+      success: true,
+      message: "Match data delete successfull.",
+      data: filteredData,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 500,
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   GetAllMatches,
   ToggleMatchStatus,
@@ -446,4 +468,5 @@ module.exports = {
   UpdateMatchLogo,
   GetAdminSportsCount,
   GetAllQuestion,
+  DeletePreviousMatch,
 };
