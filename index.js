@@ -454,12 +454,14 @@ const SaveMatchCornJob = () => {
 };
 
 
-// Schedule a task at 11:00 PM every night
-cron.schedule("0 22 * * *", SaveLeagueCornJob);
+cron.schedule("0 */3 * * *", () => {
+  SaveLeagueCornJob();
+});
 
-// Schedule a task at 11:30 PM every night
-cron.schedule("30 22 * * *", SaveMatchCornJob);
-// console.log(GetCurrentTime().split(" ")[0])
+// Schedule the second task to run 4.5 hours after the first
+cron.schedule("0 */4 * * *", () => {
+  SaveMatchCornJob();
+});
 
 // function paginateArray(array, page, limit) {
 //   // Calculate start and end indexes of the current page
